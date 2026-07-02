@@ -1,15 +1,13 @@
-print("--- Herdwavy's Hub LOADED ---")
+print("--- Herdwavy's Hub Voidware-Style FIXED ---")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 local localPlayer = Players.LocalPlayer
 
--- ПЕРЕМЕННЫЕ УПРАВЛЕНИЯ
 local espEnabled = false
 local gunEspEnabled = false
 local heartbeatConnection = nil
 
--- ФУНКЦИИ ЧИТА (ИГРОКИ)
 local function removeOldESP(character)
     local oldHighlight = character:FindFirstChild("PlayerChams")
     if oldHighlight then oldHighlight:Destroy() end
@@ -20,19 +18,14 @@ local function applyCustomESP(player)
     if player == localPlayer then return end
     local character = player.Character
     if not character then return end
-    
     local root = character:FindFirstChild("HumanoidRootPart")
     if not root then return end
-
     local espColor = Color3.fromRGB(0, 255, 0)
     local backpack = player:FindFirstChild("Backpack")
-    
     local hasKnife = character:FindFirstChild("Knife") or (backpack and backpack:FindFirstChild("Knife"))
     local hasGun = character:FindFirstChild("Gun") or (backpack and backpack:FindFirstChild("Gun"))
-
     if hasKnife then espColor = Color3.fromRGB(255, 0, 0)
     elseif hasGun then espColor = Color3.fromRGB(0, 0, 255) end
-
     local currentHighlight = character:FindFirstChild("PlayerChams")
     if not currentHighlight or currentHighlight.FillColor ~= espColor then
         removeOldESP(character)
@@ -61,12 +54,10 @@ local function toggleESP(state)
     end
 end
 
--- ПОДВЕТКА ПИСТОЛЕТА НА ЗЕМЛЕ
 task.spawn(function()
     while true do
         task.wait(0.5)
         local droppedGun = workspace:FindFirstChild("GunDrop", true)
-        
         if gunEspEnabled and droppedGun then
             if not droppedGun:FindFirstChild("GunHighlight") then
                 local highlight = Instance.new("Highlight")
@@ -85,142 +76,148 @@ task.spawn(function()
     end
 end)
 
--- ==========================================================
---               МИНИМАЛИСТИЧНЫЙ ИНТЕРФЕЙС (UI)
--- ==========================================================
-
 if CoreGui:FindFirstChild("HerdwavysHubGui") then CoreGui.HerdwavysHubGui:Destroy() end
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HerdwavysHubGui"
 ScreenGui.Parent = CoreGui
 
--- ГЛАВНОЕ ОКНО
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 550, 0, 320) -- Немного уменьшили высоту, так как убрали лишний текст
-MainFrame.Position = UDim2.new(0.5, -275, 0.5, -160)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+MainFrame.Size = UDim2.new(0, 560, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -280, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.CornerRadius = UDim.new(0, 14)
 MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(114, 137, 218)
-MainStroke.Thickness = 2.5
+MainStroke.Color = Color3.fromRGB(255, 30, 30)
+MainStroke.Thickness = 2
 MainStroke.Parent = MainFrame
 
--- БОКОВАЯ ПАНЕЛЬ
 local SidePanel = Instance.new("Frame")
-SidePanel.Size = UDim2.new(0, 140, 1, 0)
-SidePanel.BackgroundColor3 = Color3.fromRGB(23, 23, 28)
+SidePanel.Size = UDim2.new(0, 160, 1, 0)
+SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 SidePanel.BorderSizePixel = 0
 SidePanel.Parent = MainFrame
 
 local SideCorner = Instance.new("UICorner")
-SideCorner.CornerRadius = UDim.new(0, 12)
+SideCorner.CornerRadius = UDim.new(0, 14)
 SideCorner.Parent = SidePanel
 
--- ЛОГОТИП С ТВОИМ ИМЕНЕМ (БЕЗ ВЕРСИЙ)
 local LogoText = Instance.new("TextLabel")
-LogoText.Size = UDim2.new(1, 0, 0, 60)
-LogoText.Position = UDim2.new(0, 0, 0, 20)
+LogoText.Size = UDim2.new(1, 0, 0, 50)
+LogoText.Position = UDim2.new(0, 0, 0, 15)
 LogoText.BackgroundTransparency = 1
-LogoText.Text = "HERDWAVY'S\nHUB"
-LogoText.TextColor3 = Color3.fromRGB(114, 137, 218)
+LogoText.Text = "Herdwavy's Hub"
+LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 LogoText.Font = Enum.Font.GothamBold
-LogoText.TextSize = 18
+LogoText.TextSize = 16
 LogoText.Parent = SidePanel
 
-local MainTitle = Instance.new("TextLabel")
-MainTitle.Size = UDim2.new(0, 380, 0, 40)
-MainTitle.Position = UDim2.new(0, 155, 0, 20)
-MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "MURDER MYSTERY 2"
-MainTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-MainTitle.Font = Enum.Font.GothamBold
-MainTitle.TextSize = 16
-MainTitle.TextXAlignment = Enum.TextXAlignment.Left
-MainTitle.Parent = MainFrame
+local VisualsTabButton = Instance.new("Frame")
+VisualsTabButton.Size = UDim2.new(0, 140, 0, 35)
+VisualsTabButton.Position = UDim2.new(0, 10, 0, 80)
+VisualsTabButton.BackgroundColor3 = Color3.fromRGB(30, 20, 20)
+VisualsTabButton.BorderSizePixel = 0
+VisualsTabButton.Parent = SidePanel
 
--- КНОПКА 1: ESP ИГРОКОВ
-local EspButton = Instance.new("TextButton")
-EspButton.Size = UDim2.new(0, 360, 0, 55)
-EspButton.Position = UDim2.new(0, 155, 0, 80)
-EspButton.BackgroundColor3 = Color3.fromRGB(230, 75, 75)
-EspButton.Text = "ПОДСВЕТКА ИГРОКОВ (CHAMS): ВЫКЛ"
-EspButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-EspButton.Font = Enum.Font.GothamBold
-EspButton.TextSize = 14
-EspButton.Parent = MainFrame
+local TabCorner = Instance.new("UICorner")
+TabCorner.CornerRadius = UDim.new(0, 6)
+TabCorner.Parent = VisualsTabButton
 
-local EspCorner = Instance.new("UICorner")
-EspCorner.CornerRadius = UDim.new(0, 8)
-EspCorner.Parent = EspButton
+local TabStroke = Instance.new("UIStroke")
+TabStroke.Color = Color3.fromRGB(255, 30, 30)
+TabStroke.Thickness = 1
+TabStroke.Parent = VisualsTabButton
 
-EspButton.MouseButton1Click:Connect(function()
-    if not espEnabled then
-        toggleESP(true)
-        EspButton.BackgroundColor3 = Color3.fromRGB(75, 180, 75)
-        EspButton.Text = "ПОДСВЕТКА ИГРОКОВ (CHAMS): ВКЛ"
-    else
-        toggleESP(false)
-        EspButton.BackgroundColor3 = Color3.fromRGB(230, 75, 75)
-        EspButton.Text = "ПОДСВЕТКА ИГРОКОВ (CHAMS): ВЫКЛ"
-    end
-end)
+local VisualsTabText = Instance.new("TextLabel")
+VisualsTabText.Size = UDim2.new(1, 0, 1, 0)
+VisualsTabText.BackgroundTransparency = 1
+VisualsTabText.Text = "👁 Visuals"
+VisualsTabText.TextColor3 = Color3.fromRGB(255, 50, 50)
+VisualsTabText.Font = Enum.Font.GothamBold
+VisualsTabText.TextSize = 13
+VisualsTabText.Parent = VisualsTabButton
 
--- КНОПКА 2: ESP ПИСТОЛЕТА
-local GunButton = Instance.new("TextButton")
-GunButton.Size = UDim2.new(0, 360, 0, 55)
-GunButton.Position = UDim2.new(0, 155, 0, 155)
-GunButton.BackgroundColor3 = Color3.fromRGB(230, 75, 75)
-GunButton.Text = "ПОДСВЕТКА ПИСТОЛЕТА НА ПОЛУ: ВЫКЛ"
-GunButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-GunButton.Font = Enum.Font.GothamBold
-GunButton.TextSize = 14
-GunButton.Parent = MainFrame
+local Container = Instance.new("Frame")
+Container.Size = UDim2.new(0, 370, 0, 320)
+Container.Position = UDim2.new(0, 175, 0, 20)
+Container.BackgroundTransparency = 1
+Container.Parent = MainFrame
 
-local GunCorner = Instance.new("UICorner")
-GunCorner.CornerRadius = UDim.new(0, 8)
-GunCorner.Parent = GunButton
+local function createToggle(name, yPos, callback)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
+    ToggleFrame.Position = UDim2.new(0, 0, 0, yPos)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.Parent = Container
 
-GunButton.MouseButton1Click:Connect(function()
-    gunEspEnabled = not gunEspEnabled
-    if gunEspEnabled then
-        GunButton.BackgroundColor3 = Color3.fromRGB(75, 180, 75)
-        GunButton.Text = "ПОДСВЕТКА ПИСТОЛЕТА НА ПОЛУ: ВКЛ"
-    else
-        GunButton.BackgroundColor3 = Color3.fromRGB(230, 75, 75)
-        GunButton.Text = "ПОДСВЕТКА ПИСТОЛЕТА НА ПОЛУ: ВЫКЛ"
-    end
-end)
+    local FrameCorner = Instance.new("UICorner")
+    FrameCorner.CornerRadius = UDim.new(0, 8)
+    FrameCorner.Parent = ToggleFrame
 
-local InfoLabel = Instance.new("TextLabel")
-InfoLabel.Size = UDim2.new(0, 360, 0, 40)
-InfoLabel.Position = UDim2.new(0, 155, 0, 230)
-InfoLabel.BackgroundTransparency = 1
-InfoLabel.Text = "Нажимай на кнопку 'H' в углу экрана, чтобы скрыть панель."
-InfoLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
-InfoLabel.Font = Enum.Font.SourceSansItalic
-InfoLabel.TextSize = 14
-InfoLabel.TextXAlignment = Enum.TextXAlignment.Left
-InfoLabel.Parent = MainFrame
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0, 250, 1, 0)
+    Label.Position = UDim2.new(0, 15, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = name
+    Label.TextColor3 = Color3.fromRGB(230, 230, 235)
+    Label.Font = Enum.Font.GothamMedium
+    Label.TextSize = 13
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = ToggleFrame
 
--- ==========================================================
---            КРУГЛАЯ КНОПКА «H» ДЛЯ СКРЫТИЯ МЕНЮ
--- ==========================================================
+    local SwitchBG = Instance.new("TextButton")
+    SwitchBG.Size = UDim2.new(0, 45, 0, 24)
+    SwitchBG.Position = UDim2.new(1, -60, 0.5, -12)
+    SwitchBG.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+    SwitchBG.Text = ""
+    SwitchBG.Parent = ToggleFrame
+
+    local BGCorner = Instance.new("UICorner")
+    BGCorner.CornerRadius = UDim.new(1, 0)
+    BGCorner.Parent = SwitchBG
+
+    local Circle = Instance.new("Frame")
+    Circle.Size = Vector2.new(18, 18)
+    Circle.Position = UDim2.new(0, 3, 0.5, -9)
+    Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Circle.BorderSizePixel = 0
+    Circle.Parent = SwitchBG
+
+    local CircleCorner = Instance.new("UICorner")
+    CircleCorner.CornerRadius = UDim.new(1, 0)
+    CircleCorner.Parent = Circle
+
+    local active = false
+    SwitchBG.MouseButton1Click:Connect(function()
+        active = not active
+        callback(active)
+        if active then
+            SwitchBG.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+            Circle:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15)
+        else
+            SwitchBG.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+            Circle:TweenPosition(UDim2.new(0, 3, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15)
+        end
+    end)
+end
+
+createToggle("Player ESP (Chams)", 0, function(state) toggleESP(state) end)
+createToggle("Dropped Gun ESP", 60, function(state) gunEspEnabled = state end)
 
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 45, 0, 45)
 ToggleButton.Position = UDim2.new(0, 15, 0, 15)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 ToggleButton.Text = "H"
-ToggleButton.TextColor3 = Color3.fromRGB(114, 137, 218)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 30, 30)
 ToggleButton.Font = Enum.Font.GothamBold
 ToggleButton.TextSize = 22
 ToggleButton.Parent = ScreenGui
@@ -230,17 +227,17 @@ ToggleCorner.CornerRadius = UDim.new(1, 0)
 ToggleCorner.Parent = ToggleButton
 
 local ToggleStroke = Instance.new("UIStroke")
-ToggleStroke.Color = Color3.fromRGB(114, 137, 218)
+ToggleStroke.Color = Color3.fromRGB(255, 30, 30)
 ToggleStroke.Thickness = 2
 ToggleStroke.Parent = ToggleButton
 
 ToggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
     if MainFrame.Visible then
-        ToggleButton.TextColor3 = Color3.fromRGB(114, 137, 218)
-        ToggleStroke.Color = Color3.fromRGB(114, 137, 218)
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 30, 30)
+        ToggleStroke.Color = Color3.fromRGB(255, 30, 30)
     else
-        ToggleButton.TextColor3 = Color3.fromRGB(150, 150, 150)
-        ToggleStroke.Color = Color3.fromRGB(60, 60, 65)
+        ToggleButton.TextColor3 = Color3.fromRGB(120, 120, 120)
+        ToggleStroke.Color = Color3.fromRGB(50, 50, 50)
     end
 end)
