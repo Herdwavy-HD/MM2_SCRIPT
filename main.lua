@@ -1,11 +1,9 @@
-print("--- HERDWAVY'S TP-BASED SHOP LAUNCHED ---")
-local Players = game:GetService("Players")
+print("--- HERDWAVY'S SPEED-HUB METHOD LAUNCHED ---")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
-local localPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- Реальные имена палаток/семян из оригинального Speed Hub для GAG2
 local seedList = {
     "Basic Seed", "Bamboo Seed", "Rose Seed", "Tulip Seed", 
     "Sunflower Seed", "Cactus Seed", "Lily Seed", "Lotus Seed"
@@ -15,36 +13,19 @@ local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- Функция умной телепортации к палатке и прожатия покупки
-local function tpAndBuy(targetName)
-    local character = localPlayer.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-    
-    -- Ищем палатку или prompt с нужным семенем на карте
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") and (obj.ObjectText == targetName or string.find(string.lower(obj.ObjectText), string.lower(targetName:gsub(" Seed", "")))) then
-            local parentPart = obj.Parent:IsA("BasePart") and obj.Parent or obj:FindFirstChildWhichIsA("BasePart", true)
-            if parentPart then
-                -- 1. Запоминаем твою старую позицию на грядке
-                local oldCFrame = root.CFrame
-                
-                -- 2. Мгновенно переносим тебя прямо к прилавку палатки
-                root.CFrame = parentPart.CFrame + Vector3.new(0, 2, 0)
-                task.wait(0.1) -- Крошечная пауза, чтобы сервер понял, что ты рядом
-                
-                -- 3. Прожимаем покупку
-                pcall(function()
-                    obj:InputHoldBegin()
-                    task.wait(0.02)
-                    obj:InputHoldEnd()
-                end)
-                
-                task.wait(0.1)
-                -- 4. Возвращаем тебя обратно на то же место, где ты стоял
-                root.CFrame = oldCFrame
-                break
-            end
+-- ФУНКЦИЯ ДЛЯ СВЕРХБЫСТРОГО СПАМА ПО ВСЕМ НАЙДЕННЫМ КАНАЛАМ (КАК В SPEED HUB)
+local function speedHubMassBuy(seedName)
+    -- Находим вообще все RemoteEvent и RemoteFunction в игре
+    for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
+        if obj:IsA("RemoteEvent") then
+            -- Спамим во все события подряд, подставляя наше семя
+            pcall(function() obj:FireServer(seedName, 1) end)
+            pcall(function() obj:FireServer(seedName) end)
+            pcall(function() obj:FireServer(1, seedName) end)
+        elseif obj:IsA("RemoteFunction") then
+            -- Спамим во все удаленные функции
+            pcall(function() obj:InvokeServer(seedName, 1) end)
+            pcall(function() obj:InvokeServer(seedName) end)
         end
     end
 end
@@ -54,14 +35,17 @@ local function startMultiBuying()
         for i = 1, _G.BuyAmount do
             if not _G.IsBuying then break end
             
+            -- Проходимся по выбранным семенам
             for seedName, isSelected in pairs(selectedSeeds) do
                 if isSelected then
-                    tpAndBuy(seedName)
-                    task.wait(0.2) -- Безопасная пауза между покупками разных семян
+                    -- Запускаем массовую отправку пакетов без задержек и ТП!
+                    speedHubMassBuy(seedName)
                 end
             end
+            task.wait(0.02) -- Микро-пауза, чтобы Solara не вылетела от такой мощи
         end
         _G.IsBuying = false
+        print("Herdwavy's Hub: Массовая закупка пакетов завершена!")
     end)
 end
 
