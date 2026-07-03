@@ -1,11 +1,10 @@
-print("--- HERDWAVY'S ULTIMATE UI-CLICKER LAUNCHED ---")
-local Players = game:GetService("Players")
+print("--- HERDWAVY'S SPEEDHUB-METHOD GAG2 LAUNCHED ---")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
-local localPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- Настоящие точные имена карточек/кнопок из твоего UI магазина SeedShop
+-- Названия строго из базы данных игры StockValues
 local seedList = {
     "Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Corn", 
     "Bamboo", "Cactus", "Baby Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
@@ -18,62 +17,35 @@ local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- Функция симуляции клика по кнопке в твоем PlayerGui
-local function clickUiButton(seedName)
-    local playerGui = localPlayer:FindFirstChild("PlayerGui")
-    if not playerGui then return end
-    
-    -- Пробиваем путь через NormalShop, который ты нашел в Дексе!
-    local normalShop = playerGui:FindFirstChild("SeedShop") 
-                   and playerGui.SeedShop:FindFirstChild("Frame") 
-                   and playerGui.SeedShop.Frame:FindFirstChild("NormalShop")
-                   
-    if normalShop then
-        -- Ищем карточку с нужным семенем внутри интерфейса
-        for _, child in pairs(normalShop:GetDescendants()) do
-            -- Проверяем, совпадает ли имя кнопки/карточки с выбранным семенем
-            if (child:IsA("TextButton") or child:IsA("ImageButton")) and string.find(string.lower(child.Name), string.lower(seedName)) then
-                -- Находим палатку в Workspace, чтобы сервер пропустил покупку
-                local standPart = workspace:FindFirstChild("Map") 
-                               and workspace.Map:FindFirstChild("Stands") 
-                               and workspace.Map.Stands:FindFirstChild("Shop")
-                               
-                local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-                
-                if root and standPart then
-                    -- На микросекунду обманываем сервер, подменяя твою позицию на координаты лавки
-                    local oldCFrame = root.CFrame
-                    root.CFrame = standPart:GetModelCFrame() or standPart.CFrame
-                    task.wait(0.02)
-                    
-                    -- Виртуально жмем на кнопку на твоем экране!
-                    pcall(function()
-                        child:Activate() -- Официальный метод клика по UI Roblox
-                    end)
-                    
-                    task.wait(0.02)
-                    root.CFrame = oldCFrame -- Возвращаем обратно на грядку
-                end
-                break
-            end
-        end
-    end
-end
+-- Тот самый единственный рабочий порт из папки Remotes
+local secretRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("PleaseDontMakeMeUseBytenet")
 
 local function startMultiBuying()
+    if not secretRemote then 
+        print("Ошибка: Секретный порт не найден!")
+        return 
+    end
+    
     task.spawn(function()
         for i = 1, _G.BuyAmount do
             if not _G.IsBuying then break end
             
             for _, seedName in pairs(seedList) do
                 if selectedSeeds[seedName] then
-                    clickUiButton(seedName)
+                    -- МЕТОД СПИДХАБА: Передаем аргументы строго внутри ОДНОЙ таблицы!
+                    pcall(function()
+                        secretRemote:InvokeServer({
+                            [1] = "BuyItem",
+                            [2] = "SeedShop",
+                            [3] = seedName
+                        })
+                    end)
                 end
             end
-            task.wait(0.05)
+            task.wait(0.02) -- Бешеная скорость закупа без задержек экрана
         end
         _G.IsBuying = false
-        print("Herdwavy's Hub: Закупка через UI завершена!")
+        print("Herdwavy's Hub: Закупка завершена!")
     end)
 end
 
