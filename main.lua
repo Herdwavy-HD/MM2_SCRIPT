@@ -1,88 +1,81 @@
-print("--- HERDWAVY'S REAL CLICKER LAUNCHED ---")
-local Players = game:GetService("Players")
+print("--- HERDWAVY'S BACKGROUND AUTO-BUY LAUNCHED ---")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
-local VirtualUser = game:GetService("VirtualUser")
-local localPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
-_G.BuyAmount = 10
-_G.IsBuying = false
+-- Переменные управления (всё закупается в фоне, пока включен тумблер)
+_G.AutoBamboo = false
+_G.AutoRose = false
 
--- Функция симуляции клика по кнопкам в PlayerGui, который ты нашел в Дексе!
-local function doRealClick()
-    local playerGui = localPlayer:FindFirstChild("PlayerGui")
-    local normalShop = playerGui and playerGui:FindFirstChild("SeedShop") 
-                   and playerGui.SeedShop:FindFirstChild("Frame") 
-                   and playerGui.SeedShop.Frame:FindFirstChild("NormalShop")
-                   
-    if normalShop then
-        -- Скрипт сам находит ВСЕ кнопки покупки внутри твоего NormalShop
-        for _, btn in pairs(normalShop:GetDescendants()) do
-            if btn:IsA("TextButton") or btn:IsA("ImageButton") then
+local secretRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("PleaseDontMakeMeUseBytenet")
+
+-- 🔄 ФОНОВЫЙ ПОТОК ЗАКУПКИ (РАБОТАЕТ ВСЕГДА И НЕ ТЕПОРТИРУЕТ)
+task.spawn(function()
+    while true do
+        task.wait(0.5) -- Проверка и закупка каждые полсекунды, чтобы не лагало
+        if secretRemote then
+            -- Если включен бамбук
+            if _G.AutoBamboo then
                 pcall(function()
-                    -- Имитируем реальный клик мышки прямо по координатам кнопки на экране!
-                    VirtualUser:CaptureController()
-                    VirtualUser:ClickButton1(Vector2.new(btn.AbsolutePosition.X + (btn.AbsoluteSize.X/2), btn.AbsolutePosition.Y + (btn.AbsoluteSize.Y/2)))
+                    secretRemote:InvokeServer("BuyItem", "SeedShop", "Bamboo")
                 end)
-                task.wait(0.02)
+            end
+            -- Если включена роза
+            if _G.AutoRose then
+                pcall(function()
+                    secretRemote:InvokeServer("BuyItem", "SeedShop", "Briar Rose")
+                end)
             end
         end
     end
-end
-
-local function startAutoBuying()
-    task.spawn(function()
-        -- Открываем магазин на экране перед закупкой
-        local stand = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Stands") and workspace.Map.Stands:FindFirstChild("Shop")
-        local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-        
-        if root and stand then
-            local oldCF = root.CFrame
-            root.CFrame = stand:GetModelCFrame() or stand.CFrame -- Встаем к прилавку
-            task.wait(0.1)
-            
-            for i = 1, _G.BuyAmount do
-                if not _G.IsBuying then break end
-                doRealClick()
-                task.wait(0.05)
-            end
-            
-            root.CFrame = oldCF -- Возвращаемся на грядку
-        end
-        _G.IsBuying = false
-    end)
-end
+end)
 
 -- ==========================================================
---               ИНТЕРФЕЙС GUI (БЕЗ ФИЛЬТРОВ И БАГОВ)
+--               ИНТЕРФЕЙС GUI (ФОНОВЫЙ АВТОФАРМ)
 -- ==========================================================
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
 ScreenGui.Name = "HerdwavyGardenGui"
 
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 260, 0, 150)
-MainFrame.Position = UDim2.new(0.5, -130, 0.5, -75)
+MainFrame.Size = UDim2.new(0, 280, 0, 160)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -80)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
 MainFrame.Active = true MainFrame.Draggable = true
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local stroke = Instance.new("UIStroke", MainFrame) stroke.Color = Color3.fromRGB(255, 30, 30) stroke.Thickness = 2
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 35) Title.Text = "Herdwavy's Click Shop" Title.TextColor3 = Color3.fromRGB(255, 255, 255) Title.Font = Enum.Font.GothamBold Title.TextSize = 13 Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 35) Title.Text = "Herdwavy's Background Farm" Title.TextColor3 = Color3.fromRGB(255, 255, 255) Title.Font = Enum.Font.GothamBold Title.TextSize = 13 Title.BackgroundTransparency = 1
 
-local AmountInput = Instance.new("TextBox", MainFrame)
-AmountInput.Size = UDim2.new(1, -40, 0, 35) AmountInput.Position = UDim2.new(0, 20, 0, 45) AmountInput.BackgroundColor3 = Color3.fromRGB(22, 22, 26) AmountInput.Text = "5" AmountInput.TextColor3 = Color3.fromRGB(255, 255, 255) AmountInput.Font = Enum.Font.GothamMedium AmountInput.TextSize = 13
-Instance.new("UICorner", AmountInput).CornerRadius = UDim.new(0, 6)
+-- КНОПКА 1: ТУМБЛЕР БАМБУКА
+local BambooBtn = Instance.new("TextButton", MainFrame)
+BambooBtn.Size = UDim2.new(1, -40, 0, 40) BambooBtn.Position = UDim2.new(0, 20, 0, 45) BambooBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) BambooBtn.Text = "Авто-покупка Bamboo: ВЫКЛ" BambooBtn.TextColor3 = Color3.fromRGB(255, 255, 255) BambooBtn.Font = Enum.Font.GothamBold BambooBtn.TextSize = 12
+Instance.new("UICorner", BambooBtn).CornerRadius = UDim.new(0, 6)
 
-local BuyBtn = Instance.new("TextButton", MainFrame)
-BuyBtn.Size = UDim2.new(1, -40, 0, 40) BuyBtn.Position = UDim2.new(0, 20, 0, 95) BuyBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30) BuyBtn.Text = "ЗАПУСТИТЬ АВТОКЛИКЕР МАГАЗИНА" BuyBtn.TextColor3 = Color3.fromRGB(255, 255, 255) BuyBtn.Font = Enum.Font.GothamBold BuyBtn.TextSize = 12
-Instance.new("UICorner", BuyBtn).CornerRadius = UDim.new(0, 6)
+BambooBtn.MouseButton1Click:Connect(function()
+    _G.AutoBamboo = not _G.AutoBamboo
+    if _G.AutoBamboo then
+        BambooBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+        BambooBtn.Text = "Авто-покупка Bamboo: ВКЛ"
+    else
+        BambooBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+        BambooBtn.Text = "Авто-покупка Bamboo: ВЫКЛ"
+    end
+end)
 
-BuyBtn.MouseButton1Click:Connect(function()
-    if not _G.IsBuying then
-        _G.BuyAmount = tonumber(AmountInput.Text) or 5
-        _G.IsBuying = true
-        startAutoBuying()
+-- КНОПКА 2: ТУМБЛЕР РОЗЫ
+local RoseBtn = Instance.new("TextButton", MainFrame)
+RoseBtn.Size = UDim2.new(1, -40, 0, 40) RoseBtn.Position = UDim2.new(0, 20, 0, 100) RoseBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) RoseBtn.Text = "Авто-покупка Briar Rose: ВЫКЛ" RoseBtn.TextColor3 = Color3.fromRGB(255, 255, 255) RoseBtn.Font = Enum.Font.GothamBold RoseBtn.TextSize = 12
+Instance.new("UICorner", RoseBtn).CornerRadius = UDim.new(0, 6)
+
+RoseBtn.MouseButton1Click:Connect(function()
+    _G.AutoRose = not _G.AutoRose
+    if _G.AutoRose then
+        RoseBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+        RoseBtn.Text = "Авто-покупка Briar Rose: ВКЛ"
+    else
+        RoseBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+        RoseBtn.Text = "Авто-покупка Briar Rose: ВЫКЛ"
     end
 end)
