@@ -1,10 +1,9 @@
-print("--- HERDWAVY'S SPEEDHUB-METHOD GAG2 LAUNCHED ---")
+print("--- HERDWAVY'S SPEEDHUB PACKET METHOD FIXED ---")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- Названия строго из базы данных игры StockValues
 local seedList = {
     "Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Corn", 
     "Bamboo", "Cactus", "Baby Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
@@ -17,12 +16,11 @@ local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- Тот самый единственный рабочий порт из папки Remotes
 local secretRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("PleaseDontMakeMeUseBytenet")
 
 local function startMultiBuying()
     if not secretRemote then 
-        print("Ошибка: Секретный порт не найден!")
+        print("Ошибка: Секретный порт PleaseDontMakeMeUseBytenet не найден!")
         return 
     end
     
@@ -32,17 +30,19 @@ local function startMultiBuying()
             
             for _, seedName in pairs(seedList) do
                 if selectedSeeds[seedName] then
-                    -- МЕТОД СПИДХАБА: Передаем аргументы строго внутри ОДНОЙ таблицы!
+                    -- ТОЧНЫЙ МЕТОД ОТПРАВКИ ПАКЕТОВ БЕЗ ЗНАКОВ РАВЕНСТВА (КАК В SPEED HUB)
                     pcall(function()
-                        secretRemote:InvokeServer({
-                            [1] = "BuyItem",
-                            [2] = "SeedShop",
-                            [3] = seedName
-                        })
+                        secretRemote:InvokeServer({"BuyItem", "SeedShop", seedName})
+                    end)
+                    pcall(function()
+                        secretRemote:InvokeServer({"Buy", "SeedShop", seedName})
+                    end)
+                    pcall(function()
+                        secretRemote:InvokeServer({"Purchase", "SeedShop", seedName})
                     end)
                 end
             end
-            task.wait(0.02) -- Бешеная скорость закупа без задержек экрана
+            task.wait(0.02)
         end
         _G.IsBuying = false
         print("Herdwavy's Hub: Закупка завершена!")
