@@ -1,48 +1,128 @@
-print("--- HERDWAVY'S TESTING SUITE LOADED ---")
-local P,R,C,lP=game:GetService("Players"),game:GetService("RunService"),game:GetService("CoreGui"),game:GetService("Players").LocalPlayer
-local sEsp,sHb,seeds,sel,buying=false,nil,{"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"},{},false
-_G.BuyAmount=10
+print("--- HERDWAVY'S HUB Z-INDEX & CLICK FIX LOADED ---")
+local P = game:GetService("Players")
+local R = game:GetService("RunService")
+local C = game:GetService("CoreGui")
+local lP = P.LocalPlayer
+
+local sEsp, sHb, buying = false, nil, false
+local seeds = {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}
+local sel = {}
 
 local function applySelf()
     if not sEsp or not lP.Character then return end
     if not lP.Character:FindFirstChild("SelfChams") then
-        local h=Instance.new("Highlight",lP.Character)h.Name="SelfChams" h.FillColor=Color3.fromRGB(255,255,255)h.FillTransparency=0.5 h.OutlineColor=Color3.fromRGB(255,255,255)h.OutlineTransparency=0 h.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
+        local h = Instance.new("Highlight")
+        h.Name = "SelfChams"
+        h.FillColor = Color3.fromRGB(255,255,255)
+        h.FillTransparency = 0.5
+        h.OutlineColor = Color3.fromRGB(255,255,255)
+        h.OutlineTransparency = 0
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        h.Parent = lP.Character
     end
 end
+
 local function toggSelf(st)
-    sEsp=st if sEsp then sHb=R.Heartbeat:Connect(function()pcall(applySelf)end)else if sHb then sHb:Disconnect()sHb=nil end if lP.Character and lP.Character:FindFirstChild("SelfChams") then lP.Character.SelfChams:Destroy()end end
+    sEsp = st
+    if sEsp then
+        sHb = R.Heartbeat:Connect(function() pcall(applySelf) end)
+    else
+        if sHb then sHb:Disconnect() sHb = nil end
+        if lP.Character and lP.Character:FindFirstChild("SelfChams") then lP.Character.SelfChams:Destroy() end
+    end
 end
+
 local function clickUi(n)
-    local pG=lP:FindFirstChild("PlayerGui")local sS=pG and pG:FindFirstChild("SeedShop")and pG.SeedShop:FindFirstChild("Frame")and pG.SeedShop.Frame:FindFirstChild("NormalShop")
-    if sS then for _,c in pairs(sS:GetDescendants())do if(c:IsA("TextButton")or c:IsA("ImageButton"))and string.find(string.lower(c.Name),string.lower(n))then pcall(function()c:Activate()end)break end end end
+    local pG = lP:FindFirstChild("PlayerGui")
+    local sS = pG and pG:FindFirstChild("SeedShop") and pG.SeedShop:FindFirstChild("Frame") and pG.SeedShop.Frame:FindFirstChild("NormalShop")
+    if sS then 
+        for _, c in pairs(sS:GetDescendants()) do 
+            if (c:IsA("TextButton") or c:IsA("ImageButton")) and string.find(string.lower(c.Name), string.lower(n)) then 
+                pcall(function() c:Activate() end) 
+                break 
+            end 
+        end 
+    end
 end
 
 if C:FindFirstChild("HerdwavysHubGui") then C.HerdwavysHubGui:Destroy() end
-local Gui=Instance.new("ScreenGui",C)Gui.Name="HerdwavysHubGui"
-local MF=Instance.new("Frame",Gui)MF.Size=UDim2.new(0,560,0,360)MF.Position=UDim2.new(0.5,-280,0.5,-180)MF.BackgroundColor3=Color3.fromRGB(12,12,14)MF.Active=true MF.Draggable=true MF.ZIndex=5 Instance.new("UICorner",MF).CornerRadius=UDim.new(0,14)Instance.new("UIStroke",MF).Color=Color3.fromRGB(255,30,30)
-local SP=Instance.new("Frame",MF)SP.Size=UDim2.new(0,160,1,0)SP.BackgroundColor3=Color3.fromRGB(18,18,22)SP.ZIndex=6 Instance.new("UICorner",SP).CornerRadius=UDim.new(0,14)
-local LT=Instance.new("TextLabel",SP)LT.Size=UDim2.new(1,0,0,50)LT.Position=UDim2.new(0,0,0,15)LT.BackgroundTransparency=1 LT.Text="Herdwavy's Hub" LT.TextColor3=Color3.fromRGB(255,255,255)LT.Font=Enum.Font.GothamBold LT.TextSize=16 LT.ZIndex=7
-local P1=Instance.new("Frame",MF)P1.Size=UDim2.new(0,370,0,320)P1.Position=UDim2.new(0,175,0,20)P1.BackgroundTransparency=1 P1.ZIndex=6
-local P2=Instance.new("Frame",MF)P2.Size=UDim2.new(0,370,0,320)P2.Position=UDim2.new(0,175,0,20)P2.BackgroundTransparency=1 P2.Visible=false P2.ZIndex=6
+local Gui = Instance.new("ScreenGui", C) Gui.Name = "HerdwavysHubGui"
 
-local T1=Instance.new("TextButton",SP)T1.Size=UDim2.new(0,140,0,35)T1.Position=UDim2.new(0,10,0,80)T1.BackgroundColor3=Color3.fromRGB(35,15,15)T1.Text="Garden Shop" T1.TextColor3=Color3.fromRGB(255,50,50)T1.Font=Enum.Font.GothamBold T1.TextSize=13 T1.ZIndex=7 Instance.new("UICorner",T1).CornerRadius=UDim.new(0,6)local s1=Instance.new("UIStroke",T1)s1.Color=Color3.fromRGB(255,30,30)
-local T2=Instance.new("TextButton",SP)T2.Size=UDim2.new(0,140,0,35)T2.Position=UDim2.new(0,10,0,125)T2.BackgroundTransparency=1 T2.Text="Visuals" T2.TextColor3=Color3.fromRGB(130,130,140)T2.Font=Enum.Font.GothamBold T2.TextSize=13 T2.ZIndex=7 Instance.new("UICorner",T2).CornerRadius=UDim.new(0,6)local s2=Instance.new("UIStroke",T2)s2.Color=Color3.fromRGB(40,40,45)
+local MF = Instance.new("Frame", Gui)
+MF.Size = UDim2.new(0, 560, 0, 360)
+MF.Position = UDim2.new(0.5, -280, 0.5, -180)
+MF.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+MF.Active = true MF.Draggable = true MF.ZIndex = 5
+Instance.new("UICorner", MF).CornerRadius = UDim.new(0, 14)
+Instance.new("UIStroke", MF).Color = Color3.fromRGB(255, 30, 30)
 
-T1.MouseButton1Click:Connect(function() P1.Visible=true P2.Visible=false T1.BackgroundColor3=Color3.fromRGB(35,15,15)T1.BackgroundTransparency=0 T1.TextColor3=Color3.fromRGB(255,50,50)s1.Color=Color3.fromRGB(255,30,30)T2.BackgroundTransparency=1 T2.TextColor3=Color3.fromRGB(130,130,140)s2.Color=Color3.fromRGB(40,40,45)end)
-T2.MouseButton1Click:Connect(function() P1.Visible=false P2.Visible=true T2.BackgroundColor3=Color3.fromRGB(35,15,15)T2.BackgroundTransparency=0 T2.TextColor3=Color3.fromRGB(255,50,50)s2.Color=Color3.fromRGB(255,30,30)T1.BackgroundTransparency=1 T1.TextColor3=Color3.fromRGB(130,130,140)s1.Color=Color3.fromRGB(40,40,45)end)
+local SP = Instance.new("Frame", MF)
+SP.Size = UDim2.new(0, 160, 1, 0) SP.BackgroundColor3 = Color3.fromRGB(18, 18, 22) SP.ZIndex = 10
+Instance.new("UICorner", SP).CornerRadius = UDim.new(0, 14)
 
-local SL=Instance.new("ScrollingFrame",P1)SL.Size=UDim2.new(1,0,0,210)SL.Position=UDim2.new(0,0,0,5)SL.BackgroundColor3=Color3.fromRGB(18,18,22)SL.BorderSizePixel=0 SL.CanvasSize=UDim2.new(0,0,0,#seeds*36)SL.ScrollBarThickness=4 SL.ScrollBarImageColor3=Color3.fromRGB(255,30,30)SL.ZIndex=10 Instance.new("UICorner",SL).CornerRadius=UDim.new(0,8)Instance.new("UIListLayout",SL).SortOrder=Enum.SortOrder.LayoutOrder
-for _,n in pairs(seeds)do sel[n]=false local r=Instance.new("Frame",SL)r.Size=UDim2.new(1,-10,0,32)r.BackgroundTransparency=1 r.ZIndex=11 local lbl=Instance.new("TextLabel",r)lbl.Size=UDim2.new(1,-50,1,0)lbl.Position=UDim2.new(0,10,0,0)lbl.BackgroundTransparency=1 lbl.Text=n lbl.TextColor3=Color3.fromRGB(230,230,235)lbl.Font=Enum.Font.GothamMedium lbl.TextSize=12 lbl.TextXAlignment=Enum.TextXAlignment.Left lbl.ZIndex=12 local cb=Instance.new("TextButton",r)cb.Size=UDim2.new(0,20,0,20)cb.Position=UDim2.new(1,-30,0.5,-10)cb.BackgroundColor3=Color3.fromRGB(45,45,50)cb.Text="" cb.ZIndex=15 Instance.new("UICorner",cb).CornerRadius=UDim.new(0,4)cb.MouseButton1Click:Connect(function()sel[n]=not sel[n]cb.BackgroundColor3=sel[n]and Color3.fromRGB(255,30,30)or Color3.fromRGB(45,45,50)cb.Text=sel[n]and "✓" or "" end)end
+local LT = Instance.new("TextLabel", SP)
+LT.Size = UDim2.new(1, 0, 0, 50) LT.Position = UDim2.new(0, 0, 0, 15) LT.BackgroundTransparency = 1 LT.Text = "Herdwavy's Hub" LT.TextColor3 = Color3.fromRGB(255, 255, 255) LT.Font = Enum.Font.GothamBold LT.TextSize = 16 LT.ZIndex = 11
 
-local Inp=Instance.new("TextBox",P1)Inp.Size=UDim2.new(0,70,0,35)Inp.Position=UDim2.new(0,0,0,230)Inp.BackgroundColor3=Color3.fromRGB(22,22,26)Inp.Text="10" Inp.TextColor3=Color3.fromRGB(255,255,255)Inp.Font=Enum.Font.GothamMedium Inp.TextSize=13 Inp.ZIndex=15 Instance.new("UICorner",Inp).CornerRadius=UDim.new(0,6)
-local Btn=Instance.new("TextButton",P1)Btn.Size=UDim2.new(1,-85,0,35)Btn.Position=UDim2.new(0,85,0,230)Btn.BackgroundColor3=Color3.fromRGB(255,30,30)Btn.Text="ЗАПУСТИТЬ ЗАКУПКУ СЕМЕНА" Btn.TextColor3=Color3.fromRGB(255,255,255)Btn.Font=Enum.Font.GothamBold Btn.TextSize=13 Btn.ZIndex=15 Instance.new("UICorner",Btn).CornerRadius=UDim.new(0,6)
-Btn.MouseButton1Click:Connect(function()if not buying then _G.BuyAmount=tonumber(Inp.Text)or 10 buying=true task.spawn(function()for i=1,_G.BuyAmount do if not buying then break end for _,n in pairs(seeds)do if sel[n] then clickUi(n)end end task.wait(0.05)end buying=false end)end end)
+local P1 = Instance.new("Frame", MF) P1.Size = UDim2.new(0, 370, 0, 320) P1.Position = UDim2.new(0, 175, 0, 20) P1.BackgroundTransparency = 1 P1.ZIndex = 10
+local P2 = Instance.new("Frame", MF) P2.Size = UDim2.new(0, 370, 0, 320) P2.Position = UDim2.new(0, 175, 0, 20) P2.BackgroundTransparency = 1 P2.Visible = false P2.ZIndex = 10
 
-local VC=Instance.new("Frame",P2)VC.Size=UDim2.new(1,0,0,55)VC.Position=UDim2.new(0,0,0,5)VC.BackgroundColor3=Color3.fromRGB(22,22,26)VC.ZIndex=10 Instance.new("UICorner",VC).CornerRadius=UDim.new(0,8)
-local VL=Instance.new("TextLabel",VC)VL.Size=UDim2.new(0,250,1,0)VL.Position=UDim2.new(0,15,0,0)VL.BackgroundTransparency=1 VL.Text="Self ESP (White Chams)" VL.TextColor3=Color3.fromRGB(230,230,235)VL.Font=Enum.Font.GothamMedium VL.TextSize=13 VL.TextXAlignment=Enum.TextXAlignment.Left VL.ZIndex=11
-local VS=Instance.new("TextButton",VC)VS.Size=UDim2.new(0,48,0,26)VS.Position=UDim2.new(1,-65,0.5,-13)VS.BackgroundColor3=Color3.fromRGB(45,45,50)VS.Text="" VS.ZIndex=15 Instance.new("UICorner",VS).CornerRadius=UDim.new(1,0)
-local VD=Instance.new("Frame",VS)VD.Size=Vector2.new(20,20)VD.Position=UDim2.new(0,3,0.5,-10)VD.BackgroundColor3=Color3.fromRGB(255,255,255)VD.BorderSizePixel=0 VD.ZIndex=16 Instance.new("UICorner",VD).CornerRadius=UDim.new(1,0)
-VS.MouseButton1Click:Connect(function()local act=not sEsp toggSelf(act)if act then VS.BackgroundColor3=Color3.fromRGB(255,30,30)VD:TweenPosition(UDim2.new(1,-23,0.5,-10),0,0,0.12)else VS.BackgroundColor3=Color3.fromRGB(45,45,50)VD:TweenPosition(UDim2.new(0,3,0.5,-10),0,0,0.12)end end)
+local T1 = Instance.new("TextButton", SP) T1.Size = UDim2.new(0, 140, 0, 35) T1.Position = UDim2.new(0, 10, 0, 80) T1.BackgroundColor3 = Color3.fromRGB(35, 15, 15) T1.Text = "Garden Shop" T1.TextColor3 = Color3.fromRGB(255, 50, 50) T1.Font = Enum.Font.GothamBold T1.TextSize = 13 T1.ZIndex = 20 Instance.new("UICorner", T1).CornerRadius = UDim.new(0, 6) local s1 = Instance.new("UIStroke", T1) s1.Color = Color3.fromRGB(255, 30, 30)
+local T2 = Instance.new("TextButton", SP) T2.Size = UDim2.new(0, 140, 0, 35) T2.Position = UDim2.new(0, 10, 0, 125) T2.BackgroundTransparency = 1 T2.Text = "Visuals" T2.TextColor3 = Color3.fromRGB(130, 130, 140) T2.Font = Enum.Font.GothamBold T2.TextSize = 13 T2.ZIndex = 20 Instance.new("UICorner", T2).CornerRadius = UDim.new(0, 6) local s2 = Instance.new("UIStroke", T2) s2.Color = Color3.fromRGB(40, 40, 45)
 
-local Tgl=Instance.new("TextButton",Gui)Tgl.Size=UDim2.new(0,45,0,45)Tgl.Position=UDim2.new(0,15,0,15)Tgl.BackgroundColor3=Color3.fromRGB(15,15,18)Tgl.Text="H" Tgl.TextColor3=Color3.fromRGB(255,30,30)Tgl.Font=Enum.Font.GothamBold Tgl.TextSize=22 Tgl.ZIndex=100 local tSt=Instance.new("UIStroke",Tgl)tSt.Color=Color3.fromRGB(255,30,30)tSt.Thickness=2 Instance.new("UICorner",Tgl).CornerRadius=UDim.new(1,0)
-Tgl.MouseButton1Click:Connect(function()MF.Visible=not MF.Visible Tgl.TextColor3=MF.Visible and Color3.fromRGB(255,30,30)or Color3.fromRGB(120,120,120)tSt.Color=MF.Visible and Color3.fromRGB(255,30,30)or Color3.fromRGB(50,50,50)end)
+T1.MouseButton1Down:Connect(function() P1.Visible = true P2.Visible = false T1.BackgroundColor3 = Color3.fromRGB(35, 15, 15) T1.BackgroundTransparency = 0 T1.TextColor3 = Color3.fromRGB(255, 50, 50) s1.Color = Color3.fromRGB(255, 30, 30) T2.BackgroundTransparency = 1 T2.TextColor3 = Color3.fromRGB(130, 130, 140) s2.Color = Color3.fromRGB(40, 40, 45) end)
+T2.MouseButton1Down:Connect(function() P1.Visible = false P2.Visible = true T2.BackgroundColor3 = Color3.fromRGB(35, 15, 15) T2.BackgroundTransparency = 0 T2.TextColor3 = Color3.fromRGB(255, 50, 50) s2.Color = Color3.fromRGB(255, 30, 30) T1.BackgroundTransparency = 1 T1.TextColor3 = Color3.fromRGB(130, 130, 140) s1.Color = Color3.fromRGB(40, 40, 45) end)
+
+local SL = Instance.new("ScrollingFrame", P1) SL.Size = UDim2.new(1, 0, 0, 210) SL.Position = UDim2.new(0, 0, 0, 5) SL.BackgroundColor3 = Color3.fromRGB(18, 18, 22) SL.BorderSizePixel = 0 SL.CanvasSize = UDim2.new(0, 0, 0, #seeds*36) SL.ScrollBarThickness = 4 SL.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30) SL.ZIndex = 15 Instance.new("UICorner", SL).CornerRadius = UDim.new(0, 8) Instance.new("UIListLayout", SL).SortOrder = Enum.SortOrder.LayoutOrder
+
+for _, n in pairs(seeds) do 
+    sel[n] = false 
+    local r = Instance.new("Frame", SL) r.Size = UDim2.new(1, -10, 0, 32) r.BackgroundTransparency = 1 r.ZIndex = 16 
+    local lbl = Instance.new("TextLabel", r) lbl.Size = UDim2.new(1, -50, 1, 0) lbl.Position = UDim2.new(0, 10, 0, 0) lbl.BackgroundTransparency = 1 lbl.Text = n lbl.TextColor3 = Color3.fromRGB(230, 230, 235) lbl.Font = Enum.Font.GothamMedium lbl.TextSize = 12 lbl.TextXAlignment = Enum.TextXAlignment.Left lbl.ZIndex = 17 
+    local cb = Instance.new("TextButton", r) cb.Size = UDim2.new(0, 20, 0, 20) cb.Position = UDim2.new(1, -30, 0.5, -10) cb.BackgroundColor3 = Color3.fromRGB(45, 45, 50) cb.Text = "" cb.ZIndex = 50 Instance.new("UICorner", cb).CornerRadius = UDim.new(0, 4) 
+    cb.MouseButton1Down:Connect(function() 
+        sel[n] = not sel[n] 
+        cb.BackgroundColor3 = sel[n] and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(45, 45, 50) 
+        cb.Text = sel[n] and "✓" or "" 
+    end)
+end
+
+local Inp = Instance.new("TextBox", P1) Inp.Size = UDim2.new(0, 70, 0, 35) Inp.Position = UDim2.new(0, 0, 0, 230) Inp.BackgroundColor3 = Color3.fromRGB(22, 22, 26) Inp.Text = "10" Inp.TextColor3 = Color3.fromRGB(255, 255, 255) Inp.Font = Enum.Font.GothamMedium Inp.TextSize = 13 Inp.ZIndex = 25 Instance.new("UICorner", Inp).CornerRadius = UDim.new(0, 6)
+local Btn = Instance.new("TextButton", P1) Btn.Size = UDim2.new(1, -85, 0, 35) Btn.Position = UDim2.new(0, 85, 0, 230) Btn.BackgroundColor3 = Color3.fromRGB(255, 30, 30) Btn.Text = "ЗАПУСТИТЬ ЗАКУПКУ СЕМЕНА" Btn.TextColor3 = Color3.fromRGB(255, 255, 255) Btn.Font = Enum.Font.GothamBold Btn.TextSize = 13 Btn.ZIndex = 25 Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+
+Btn.MouseButton1Down:Connect(function()
+    if not buying then 
+        _G.BuyAmount = tonumber(Inp.Text) or 10 
+        buying = true 
+        task.spawn(function() 
+            for i = 1, _G.BuyAmount do 
+                if not buying then break end 
+                for _, n in pairs(seeds) do if sel[n] then clickUi(n) end end 
+                task.wait(0.05) 
+            end 
+            buying = false 
+        end) 
+    end 
+end)
+
+local VC = Instance.new("Frame", P2) VC.Size = UDim2.new(1, 0, 0, 55) VC.Position = UDim2.new(0, 0, 0, 5) VC.BackgroundColor3 = Color3.fromRGB(22, 22, 26) VC.ZIndex = 15 Instance.new("UICorner", VC).CornerRadius = UDim.new(0, 8)
+local VL = Instance.new("TextLabel", VC) VL.Size = UDim2.new(0, 250, 1, 0) VL.Position = UDim2.new(0, 15, 0, 0) VL.BackgroundTransparency = 1 VL.Text = "Self ESP (White Chams)" VL.TextColor3 = Color3.fromRGB(230, 230, 235) VL.Font = Enum.Font.GothamMedium VL.TextSize = 13 VL.TextXAlignment = Enum.TextXAlignment.Left VL.ZIndex = 16
+
+-- МАКСИМАЛЬНЫЙ ZINDEX ДЛЯ СЛИПШЕГОСЯ ТУМБЛЕРА
+local VS = Instance.new("TextButton", VC) VS.Size = UDim2.new(0, 48, 0, 26) VS.Position = UDim2.new(1, -65, 0.5, -13) VS.BackgroundColor3 = Color3.fromRGB(45, 45, 50) VS.Text = "" VS.ZIndex = 100 Instance.new("UICorner", VS).CornerRadius = UDim.new(1, 0)
+local VD = Instance.new("Frame", VS) VD.Size = Vector2.new(18, 18) VD.Position = UDim2.new(0, 3, 0.5, -9) VD.BackgroundColor3 = Color3.fromRGB(255, 255, 255) VD.BorderSizePixel = 0 VD.ZIndex = 101 Instance.new("UICorner", VD).CornerRadius = UDim.new(1, 0)
+
+local selfActive = false
+VS.MouseButton1Down:Connect(function()
+    selfActive = not selfActive
+    toggSelf(selfActive)
+    if selfActive then 
+        VS.BackgroundColor3 = Color3.fromRGB(255, 30, 30) 
+        VD:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12)
+    else 
+        VS.BackgroundColor3 = Color3.fromRGB(45, 45, 50) 
+        VD:TweenPosition(UDim2.new(0, 3, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12)
+    end 
+end)
+
+local Tgl = Instance.new("TextButton", Gui) Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15) Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30) Tgl.Font = Enum.Font.GothamBold Tgl.TextSize = 22 Tgl.ZIndex = 100 local tSt = Instance.new("UIStroke", Tgl) tSt.Color = Color3.fromRGB(255, 30, 30) tSt.Thickness = 2 Instance.new("UICorner", Tgl).CornerRadius = UDim.new(1, 0)
+Tgl.MouseButton1Down:Connect(function() MF.Visible = not MF.Visible Tgl.TextColor3 = MF.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(120, 120, 120) tSt.Color = MF.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(50, 50, 50) end)
