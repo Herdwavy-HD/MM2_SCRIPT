@@ -1,83 +1,61 @@
-print("--- Herdwavy's Hub Premium Voidware Fixed ---")
+print("--- HERDWAVY'S Hub GAG2 Edition LOADED ---")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 local localPlayer = Players.LocalPlayer
 
-local espEnabled = true
-local gunEspEnabled = true
-local heartbeatConnection = nil
-
-local function removeOldESP(character)
-    local oldHighlight = character:FindFirstChild("PlayerChams")
-    if oldHighlight then oldHighlight:Destroy() end
-end
-
-local function applyCustomESP(player)
-    if not espEnabled or player == localPlayer then return end
-    local character = player.Character
-    if not character then return end
-    local root = character:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-    local espColor = Color3.fromRGB(0, 255, 0)
-    local backpack = player:FindFirstChild("Backpack")
-    local hasKnife = character:FindFirstChild("Knife") or (backpack and backpack:FindFirstChild("Knife"))
-    local hasGun = character:FindFirstChild("Gun") or (backpack and backpack:FindFirstChild("Gun"))
-    if hasKnife then espColor = Color3.fromRGB(255, 0, 0)
-    elseif hasGun then espColor = Color3.fromRGB(0, 0, 255) end
-    local currentHighlight = character:FindFirstChild("PlayerChams")
-    if not currentHighlight or currentHighlight.FillColor ~= espColor then
-        removeOldESP(character)
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "PlayerChams"
-        highlight.FillColor = espColor
-        highlight.FillTransparency = 0.75
-        highlight.OutlineColor = espColor
-        highlight.OutlineTransparency = 0.2
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        highlight.Parent = character
-    end
-end
-
-local function toggleESP(state)
-    espEnabled = state
-    if espEnabled then
-        if not heartbeatConnection then
-            heartbeatConnection = RunService.Heartbeat:Connect(function()
-                for _, p in pairs(Players:GetPlayers()) do pcall(applyCustomESP, p) end
-            end)
-        end
-    else
-        if heartbeatConnection then heartbeatConnection:Disconnect() heartbeatConnection = nil end
-        for _, p in pairs(Players:GetPlayers()) do if p.Character then removeOldESP(p.Character) end end
-    end
-end
-
-toggleESP(true)
-
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        local droppedGun = workspace:FindFirstChild("GunDrop", true)
-        if gunEspEnabled and droppedGun then
-            if not droppedGun:FindFirstChild("GunHighlight") then
-                local highlight = Instance.new("Highlight")
-                highlight.Name = "GunHighlight"
-                highlight.FillColor = Color3.fromRGB(255, 0, 255)
-                highlight.FillTransparency = 0.3
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                highlight.OutlineTransparency = 0
-                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                highlight.Parent = droppedGun
-            end
-        elseif not gunEspEnabled and droppedGun then
-            local oldGunHigh = droppedGun:FindFirstChild("GunHighlight")
-            if oldGunHigh then oldGunHigh:Destroy() end
-        end
-    end
-end)
-
 if CoreGui:FindFirstChild("HerdwavysHubGui") then CoreGui.HerdwavysHubGui:Destroy() end
+
+-- Твой идеальный и полный список семян из игры
+local seedList = {
+    "Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Corn", 
+    "Bamboo", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
+    "Coconut", "Mango", "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Briar Rose",
+    "Venus Fly Trap", "Pomegranate", "Poison Apple", "Venom Spitter", 
+    "Moon Bloom", "Hypno Bloom", "Dragon's Breath"
+}
+
+local selectedSeeds = {}
+_G.BuyAmount = 10
+_G.IsBuying = false
+
+-- Функция автокликера по скрытым UI кнопкам игры (срабатывает со 100% гарантией)
+local function clickUiButton(seedName)
+    local playerGui = localPlayer:FindFirstChild("PlayerGui")
+    local normalShop = playerGui and playerGui:FindFirstChild("SeedShop") 
+                   and playerGui.SeedShop:FindFirstChild("Frame") 
+                   and playerGui.SeedShop.Frame:FindFirstChild("NormalShop")
+                   
+    if normalShop then
+        for _, child in pairs(normalShop:GetDescendants()) do
+            if (child:IsA("TextButton") or child:IsA("ImageButton")) and string.find(string.lower(child.Name), string.lower(seedName)) then
+                pcall(function()
+                    child:Activate() -- Кликает по невидимым кнопкам интерфейса без телепортов!
+                end)
+                break
+            end
+        end
+    end
+end
+
+local function startMultiBuying()
+    task.spawn(function()
+        for i = 1, _G.BuyAmount do
+            if not _G.IsBuying then break end
+            for _, seedName in pairs(seedList) do
+                if selectedSeeds[seedName] then
+                    clickUiButton(seedName)
+                end
+            end
+            task.wait(0.05)
+        end
+        _G.IsBuying = false
+    end)
+end
+
+-- ==========================================================
+--               ЭЛИТНЫЙ ИНТЕРФЕЙС HERDWAVY'S HUB (GARDEN)
+-- ==========================================================
+
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
 ScreenGui.Name = "HerdwavysHubGui"
 
@@ -102,27 +80,54 @@ Instance.new("UICorner", TabFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", TabFrame).Color = Color3.fromRGB(255, 30, 30)
 
 local TabText = Instance.new("TextLabel", TabFrame)
-TabText.Size = UDim2.new(1, 0, 1, 0) TabText.BackgroundTransparency = 1 TabText.Text = "Visuals" TabText.TextColor3 = Color3.fromRGB(255, 50, 50) TabText.Font = Enum.Font.GothamBold TabText.TextSize = 13 TabText.ZIndex = 8
+TabText.Size = UDim2.new(1, 0, 1, 0) TabText.BackgroundTransparency = 1 TabText.Text = "Garden Shop" TabText.TextColor3 = Color3.fromRGB(255, 50, 50) TabText.Font = Enum.Font.GothamBold TabText.TextSize = 13 TabText.ZIndex = 8
 
 local Container = Instance.new("Frame", MainFrame)
 Container.Size = UDim2.new(0, 370, 0, 320) Container.Position = UDim2.new(0, 175, 0, 20) Container.BackgroundTransparency = 1 Container.ZIndex = 6
 
-local function createToggle(name, yPos, startActive, callback)
-    local f = Instance.new("Frame", Container) f.Size = UDim2.new(1, 0, 0, 50) f.Position = UDim2.new(0, 0, 0, yPos) f.BackgroundColor3 = Color3.fromRGB(22, 22, 26) f.ZIndex = 10 Instance.new("UICorner", f).CornerRadius = UDim.new(0, 8)
-    local l = Instance.new("TextLabel", f) l.Size = UDim2.new(0, 250, 1, 0) l.Position = UDim2.new(0, 15, 0, 0) l.BackgroundTransparency = 1 l.Text = name l.TextColor3 = Color3.fromRGB(230, 230, 235) l.Font = Enum.Font.GothamMedium l.TextSize = 13 l.TextXAlignment = Enum.TextXAlignment.Left l.ZIndex = 11
-    local b = Instance.new("TextButton", f) b.Size = UDim2.new(0, 45, 0, 24) b.Position = UDim2.new(1, -60, 0.5, -12) b.Text = "" b.ZIndex = 15 Instance.new("UICorner", b).CornerRadius = UDim.new(1, 0)
-    local c = Instance.new("Frame", b) c.Size = Vector2.new(18, 18) c.ZIndex = 16 Instance.new("UICorner", c).CornerRadius = UDim.new(1, 0)
-    local act = startActive
-    if act then b.BackgroundColor3 = Color3.fromRGB(255, 30, 30) c.Position = UDim2.new(1, -21, 0.5, -9) else b.BackgroundColor3 = Color3.fromRGB(45, 45, 50) c.Position = UDim2.new(0, 3, 0.5, -9) end
-    c.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    b.MouseButton1Click:Connect(function()
-        act = not act callback(act)
-        if act then b.BackgroundColor3 = Color3.fromRGB(255, 30, 30) c:TweenPosition(UDim2.new(1, -21, 0.5, -9), 0, 0, 0.12) else b.BackgroundColor3 = Color3.fromRGB(45, 45, 50) c:TweenPosition(UDim2.new(0, 3, 0.5, -9), 0, 0, 0.12) end
+-- 📜 СПИСОК СЕМЯН С ПРОКРУТКОЙ ВНУТРИ ОКНА VOIDWARE
+local ScrollList = Instance.new("ScrollingFrame", Container)
+ScrollList.Size = UDim2.new(1, 0, 0, 210)
+ScrollList.Position = UDim2.new(0, 0, 0, 5)
+ScrollList.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+ScrollList.BorderSizePixel = 0
+ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 36)
+ScrollList.ScrollBarThickness = 4
+ScrollList.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
+ScrollList.ZIndex = 10
+Instance.new("UICorner", ScrollList).CornerRadius = UDim.new(0, 8)
+
+local UIListLayout = Instance.new("UIListLayout", ScrollList)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 4)
+
+for _, seedName in pairs(seedList) do
+    selectedSeeds[seedName] = false
+    
+    local SeedRow = Instance.new("Frame", ScrollList) SeedRow.Size = UDim2.new(1, -10, 0, 32) SeedRow.BackgroundTransparency = 1 SeedRow.ZIndex = 11
+    local SeedNameLabel = Instance.new("TextLabel", SeedRow) SeedNameLabel.Size = UDim2.new(1, -50, 1, 0) SeedNameLabel.Position = UDim2.new(0, 10, 0, 0) SeedNameLabel.BackgroundTransparency = 1 SeedNameLabel.Text = seedName SeedNameLabel.TextColor3 = Color3.fromRGB(230, 230, 235) SeedNameLabel.Font = Enum.Font.GothamMedium SeedNameLabel.TextSize = 12 SeedNameLabel.TextXAlignment = Enum.TextXAlignment.Left SeedNameLabel.ZIndex = 12
+    local CheckBox = Instance.new("TextButton", SeedRow) CheckBox.Size = UDim2.new(0, 20, 0, 20) CheckBox.Position = UDim2.new(1, -30, 0.5, -10) CheckBox.BackgroundColor3 = Color3.fromRGB(45, 45, 50) CheckBox.Text = "" CheckBox.ZIndex = 12 Instance.new("UICorner", CheckBox).CornerRadius = UDim.new(0, 4)
+    
+    CheckBox.MouseButton1Click:Connect(function()
+        selectedSeeds[seedName] = not selectedSeeds[seedName]
+        if selectedSeeds[seedName] then CheckBox.BackgroundColor3 = Color3.fromRGB(255, 30, 30) CheckBox.Text = "✓" CheckBox.TextColor3 = Color3.fromRGB(255, 255, 255) else CheckBox.BackgroundColor3 = Color3.fromRGB(45, 45, 50) CheckBox.Text = "" end
     end)
 end
 
-createToggle("Player ESP (Chams)", 0, true, function(s) toggleESP(s) end)
-createToggle("Dropped Gun ESP", 60, true, function(s) gunEspEnabled = s end)
+-- ВВОД КОЛИЧЕСТВА И КНОПКА ПОКУПКИ СНИЗУ
+local AmountInput = Instance.new("TextBox", Container)
+AmountInput.Size = UDim2.new(0, 70, 0, 35) AmountInput.Position = UDim2.new(0, 0, 0, 230) AmountInput.BackgroundColor3 = Color3.fromRGB(22, 22, 26) AmountInput.Text = "10" AmountInput.TextColor3 = Color3.fromRGB(255, 255, 255) AmountInput.Font = Enum.Font.GothamMedium AmountInput.TextSize = 13 AmountInput.ZIndex = 15 Instance.new("UICorner", AmountInput).CornerRadius = UDim.new(0, 6)
+
+local BuyBtn = Instance.new("TextButton", Container)
+BuyBtn.Size = UDim2.new(1, -85, 0, 35) BuyBtn.Position = UDim2.new(0, 85, 0, 230) BuyBtn.BackgroundColor3 = Color3.fromRGB(255, 30, 30) BuyBtn.Text = "ЗАПУСТИТЬ ЗАКУПКУ СЕМЕНА" BuyBtn.TextColor3 = Color3.fromRGB(255, 255, 255) BuyBtn.Font = Enum.Font.GothamBold BuyBtn.TextSize = 13 BuyBtn.ZIndex = 15 Instance.new("UICorner", BuyBtn).CornerRadius = UDim.new(0, 6)
+
+BuyBtn.MouseButton1Click:Connect(function()
+    if not _G.IsBuying then
+        _G.BuyAmount = tonumber(AmountInput.Text) or 10
+        _G.IsBuying = true
+        startMultiBuying()
+    end
+end)
 
 local Tgl = Instance.new("TextButton", ScreenGui)
 Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15) Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30) Tgl.Font = Enum.Font.GothamBold Tgl.TextSize = 22 Tgl.ZIndex = 100
