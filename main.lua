@@ -1,40 +1,50 @@
-print("--- HERDWAVY'S ULTIMATE CLICK-BASED SHOP LAUNCHED ---")
+print("--- HERDWAVY'S TP-BASED SHOP LAUNCHED ---")
+local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-local ProximityPromptService = game:GetService("ProximityPromptService")
+local localPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- 🛒 Автоматически собираем ВСЕ реальные семена с карты игры
-local realSeeds = {}
-for _, obj in pairs(workspace:GetDescendants()) do
-    -- Ищем палатки, где продаются семена (обычно там висит ProximityPrompt или ClickDetector)
-    if obj:IsA("ProximityPrompt") and obj.ObjectText and string.find(string.lower(obj.ObjectText), "seed") then
-        local seedName = obj.ObjectText
-        if not table.find(realSeeds, seedName) then
-            table.insert(realSeeds, seedName)
-        end
-    end
-end
-
--- Если игра старая и prompts не найдены, используем стандартный проверенный список
-if #realSeeds == 0 then
-    realSeeds = {"Basic Seed", "Bamboo Seed", "Rose Seed", "Tulip Seed", "Sunflower Seed", "Cactus Seed"}
-end
+-- Реальные имена палаток/семян из оригинального Speed Hub для GAG2
+local seedList = {
+    "Basic Seed", "Bamboo Seed", "Rose Seed", "Tulip Seed", 
+    "Sunflower Seed", "Cactus Seed", "Lily Seed", "Lotus Seed"
+}
 
 local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- Функция симуляции реального клика по палатке в обход сетевых пакетов
-local function clickBuyPrompt(targetName)
+-- Функция умной телепортации к палатке и прожатия покупки
+local function tpAndBuy(targetName)
+    local character = localPlayer.Character
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    
+    -- Ищем палатку или prompt с нужным семенем на карте
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") and obj.ObjectText == targetName then
-            -- Скрипт мгновенно прожимает кнопку покупки прямо в игровом мире!
-            pcall(function()
-                obj:InputHoldBegin()
-                task.wait(0.01)
-                obj:InputHoldEnd()
-            end)
+        if obj:IsA("ProximityPrompt") and (obj.ObjectText == targetName or string.find(string.lower(obj.ObjectText), string.lower(targetName:gsub(" Seed", "")))) then
+            local parentPart = obj.Parent:IsA("BasePart") and obj.Parent or obj:FindFirstChildWhichIsA("BasePart", true)
+            if parentPart then
+                -- 1. Запоминаем твою старую позицию на грядке
+                local oldCFrame = root.CFrame
+                
+                -- 2. Мгновенно переносим тебя прямо к прилавку палатки
+                root.CFrame = parentPart.CFrame + Vector3.new(0, 2, 0)
+                task.wait(0.1) -- Крошечная пауза, чтобы сервер понял, что ты рядом
+                
+                -- 3. Прожимаем покупку
+                pcall(function()
+                    obj:InputHoldBegin()
+                    task.wait(0.02)
+                    obj:InputHoldEnd()
+                end)
+                
+                task.wait(0.1)
+                -- 4. Возвращаем тебя обратно на то же место, где ты стоял
+                root.CFrame = oldCFrame
+                break
+            end
         end
     end
 end
@@ -46,17 +56,17 @@ local function startMultiBuying()
             
             for seedName, isSelected in pairs(selectedSeeds) do
                 if isSelected then
-                    clickBuyPrompt(seedName)
+                    tpAndBuy(seedName)
+                    task.wait(0.2) -- Безопасная пауза между покупками разных семян
                 end
             end
-            task.wait(0.05) -- Пауза, чтобы игра успевала выдавать семена
         end
         _G.IsBuying = false
     end)
 end
 
 -- ==========================================================
---                    ИНТЕРФЕЙС GUI (ФИКС СЛОЕВ)
+--                    ИНТЕРФЕЙС GUI
 -- ==========================================================
 
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
@@ -100,7 +110,7 @@ ScrollList.Size = UDim2.new(1, -40, 0, 140)
 ScrollList.Position = UDim2.new(0, 20, 0, 77)
 ScrollList.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 ScrollList.BorderSizePixel = 0
-ScrollList.CanvasSize = UDim2.new(0, 0, 0, #realSeeds * 34)
+ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 34)
 ScrollList.ScrollBarThickness = 4
 ScrollList.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
 ScrollList.Visible = false
@@ -143,7 +153,7 @@ local function updateCountText()
     end
 end
 
-for _, seedName in pairs(realSeeds) do
+for _, seedName in pairs(seedList) do
     selectedSeeds[seedName] = false
     
     local SeedRow = Instance.new("Frame", ScrollList)
