@@ -4,11 +4,11 @@ local CoreGui = game:GetService("CoreGui")
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- Твой идеальный и проверенный список семян из игры
+-- 📊 НАСТОЯЩИЕ НАЗВАНИЯ ИЗ ТВОЕГО ДЕКСА!
 local seedList = {
     "Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Corn", 
-    "Bamboo", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
-    "Coconut", "Mango", "Dragon Fruit", "Acorn", "Cherry", "Sunflower", 
+    "Bamboo", "Cactus", "Baby Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
+    "Coconut", "Mango", "Dragon Fruit", "Acorn", "Cherry", "Sunflower", "Briar Rose",
     "Venus Fly Trap", "Pomegranate", "Poison Apple", "Venom Spitter", 
     "Moon Bloom", "Hypno Bloom", "Dragon's Breath"
 }
@@ -17,12 +17,12 @@ local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- НАШ НАЙДЕННЫЙ СЕКРЕТНЫЙ КАНАЛ ИГРЫ
+-- Тот самый рофляный скрытый порт, который ты нашёл
 local secretRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("PleaseDontMakeMeUseBytenet")
 
 local function startMultiBuying()
     if not secretRemote then 
-        print("Ошибка: Секретный порт не найден в ReplicatedStorage.Remotes!")
+        print("Ошибка: Порт PleaseDontMakeMeUseBytenet не найден!")
         return 
     end
     
@@ -32,19 +32,16 @@ local function startMultiBuying()
             
             for _, seedName in pairs(seedList) do
                 if selectedSeeds[seedName] then
-                    -- Атакуем сервер через оригинальный перехваченный канал!
+                    -- Отправляем идеальный пакет: ("BuyItem", "Категория", "Имя_Из_Декса")
                     pcall(function() 
-                        secretRemote:InvokeServer("BuyItem", seedName, 1) 
+                        secretRemote:InvokeServer("BuyItem", "SeedShop", seedName) 
                     end)
                     pcall(function() 
-                        secretRemote:InvokeServer("BuySeed", seedName, 1) 
-                    end)
-                    pcall(function() 
-                        secretRemote:InvokeServer(seedName, 1) 
+                        secretRemote:InvokeServer("Buy", "SeedShop", seedName) 
                     end)
                 end
             end
-            task.wait(0.03) -- Ультра-скорость скупки без лагов
+            task.wait(0.04)
         end
         _G.IsBuying = false
     end)
