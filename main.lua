@@ -1,63 +1,55 @@
-print("--- HERDWAVY'S FULL REAL SEED SHOP LAUNCHED ---")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+print("--- HERDWAVY'S AUTONOMOUS SEED SHOP LAUNCHED ---")
+local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local localPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
--- 📊 ПОЛНЫЙ И ТОЧНЫЙ СПИСОК СЕМЯН СЕЛИ ПО ТВОИМ СКРИНШОТАМ С ПРАВИЛЬНЫМИ ID
+-- Твой идеальный список семян из игры
 local seedList = {
-    {name = "Carrot",          id = 1},
-    {name = "Strawberry",      id = 2},
-    {name = "Blueberry",       id = 3},
-    {name = "Tulip",           id = 4},
-    {name = "Tomato",          id = 5},
-    {name = "Apple",           id = 6},
-    {name = "Corn",            id = 7},
-    {name = "Bamboo",          id = 8},
-    {name = "Cactus",          id = 9},
-    {name = "Pineapple",       id = 10},
-    {name = "Mushroom",        id = 11},
-    {name = "Green Bean",      id = 12},
-    {name = "Banana",          id = 13},
-    {name = "Grape",           id = 14},
-    {name = "Coconut",         id = 15},
-    {name = "Mango",           id = 16},
-    {name = "Dragon Fruit",    id = 17},
-    {name = "Acorn",           id = 18},
-    {name = "Cherry",          id = 19},
-    {name = "Sunflower",       id = 20},
-    {name = "Venus Fly Trap",  id = 21},
-    {name = "Pomegranate",     id = 22},
-    {name = "Poison Apple",    id = 23},
-    {name = "Venom Spitter",   id = 24},
-    {name = "Moon Bloom",      id = 25},
-    {name = "Hypno Bloom",     id = 26}, -- Твой порядок: сначала гипно
-    {name = "Dragon's Breath", id = 27}  -- потом драгон бретх
+    "Carrot", "Strawberry", "Blueberry", "Tulip", "Tomato", "Apple", "Corn", 
+    "Bamboo", "Cactus", "Pineapple", "Mushroom", "Green Bean", "Banana", "Grape", 
+    "Coconut", "Mango", "Dragon Fruit", "Acorn", "Cherry", "Sunflower", 
+    "Venus Fly Trap", "Pomegranate", "Poison Apple", "Venom Spitter", 
+    "Moon Bloom", "Hypno Bloom", "Dragon's Breath"
 }
 
 local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
-local buyRemote = ReplicatedStorage:FindFirstChild("BuyItem", true) 
-               or ReplicatedStorage:FindFirstChild("BuySeed", true)
-               or ReplicatedStorage:FindFirstChild("Remote", true):FindFirstChild("BuyItem")
+-- Профессиональный метод виртуального клика по объектам карты
+local function smartClickBuy(targetName)
+    -- Ищем палатки по всей карте (в workspace)
+    for _, obj in pairs(workspace:GetDescendants()) do
+        -- Проверяем, ProximityPrompt это или ClickDetector
+        if obj:IsA("ProximityPrompt") and (string.find(string.lower(obj.ObjectText or ""), string.lower(targetName)) or string.find(string.lower(obj.ActionText or ""), string.lower(targetName))) then
+            pcall(function()
+                obj:InputHoldBegin()
+                task.wait(0.01)
+                obj:InputHoldEnd()
+            end)
+        elseif obj:IsA("ClickDetector") and (string.find(string.lower(obj.Parent.Name or ""), string.lower(targetName))) then
+            pcall(function()
+                fireclickdetector(obj) -- Встроенная функция Solara для кликов издалека
+            end)
+        end
+    end
+end
 
 local function startMultiBuying()
-    if not buyRemote then return end
     task.spawn(function()
         for i = 1, _G.BuyAmount do
             if not _G.IsBuying then break end
-            for _, seedInfo in pairs(seedList) do
-                if selectedSeeds[seedInfo.name] then
-                    pcall(function() 
-                        buyRemote:FireServer(seedInfo.id, 1) 
-                    end)
+            for _, seedName in pairs(seedList) do
+                if selectedSeeds[seedName] then
+                    smartClickBuy(seedName)
                 end
             end
-            task.wait(0.03)
+            task.wait(0.05) -- Безопасный тайминг
         end
         _G.IsBuying = false
+        print("Herdwavy's Hub: Локальный закуп завершен!")
     end)
 end
 
@@ -106,7 +98,7 @@ ScrollList.Size = UDim2.new(1, -40, 0, 140)
 ScrollList.Position = UDim2.new(0, 20, 0, 77)
 ScrollList.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 ScrollList.BorderSizePixel = 0
-ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 34) -- Авто-размер под 27 семян!
+ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 34)
 ScrollList.ScrollBarThickness = 4
 ScrollList.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
 ScrollList.Visible = false
@@ -132,10 +124,10 @@ SafeLabel.ZIndex = 6
 local function updateCountText()
     local c = 0
     local names = {}
-    for _, seedInfo in pairs(seedList) do 
-        if selectedSeeds[seedInfo.name] then 
+    for _, name in pairs(seedList) do 
+        if selectedSeeds[name] then 
             c = c + 1 
-            table.insert(names, seedInfo.name) 
+            table.insert(names, name) 
         end 
     end
     ListToggleBtn.Text = "▼ ВЫБРАТЬ СЕМЕНА ("..c.." выбрано) ▼"
@@ -149,8 +141,8 @@ local function updateCountText()
     end
 end
 
-for _, seedInfo in pairs(seedList) do
-    selectedSeeds[seedInfo.name] = false
+for _, seedName in pairs(seedList) do
+    selectedSeeds[seedName] = false
     
     local SeedRow = Instance.new("Frame", ScrollList)
     SeedRow.Size = UDim2.new(1, -10, 0, 30)
@@ -161,7 +153,7 @@ for _, seedInfo in pairs(seedList) do
     SeedNameLabel.Size = UDim2.new(1, -50, 1, 0)
     SeedNameLabel.Position = UDim2.new(0, 10, 0, 0)
     SeedNameLabel.BackgroundTransparency = 1
-    SeedNameLabel.Text = seedInfo.name
+    SeedNameLabel.Text = seedName
     SeedNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     SeedNameLabel.Font = Enum.Font.GothamMedium
     SeedNameLabel.TextSize = 12
@@ -177,8 +169,8 @@ for _, seedInfo in pairs(seedList) do
     Instance.new("UICorner", CheckBox).CornerRadius = UDim.new(0, 4)
     
     CheckBox.MouseButton1Click:Connect(function()
-        selectedSeeds[seedInfo.name] = not selectedSeeds[seedInfo.name]
-        if selectedSeeds[seedInfo.name] then
+        selectedSeeds[seedName] = not selectedSeeds[seedName]
+        if selectedSeeds[seedName] then
             CheckBox.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
             CheckBox.Text = "✓"
             CheckBox.TextColor3 = Color3.fromRGB(255, 255, 255)
