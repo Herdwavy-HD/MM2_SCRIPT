@@ -1,34 +1,36 @@
-print("--- СЕТЕВОЙ ШПИОН HERDWAVY ЗАПУЩЕН ---")
-local LogService = game:GetService("LogService")
+print("--- ЧИСТЫЙ СЕТЕВОЙ ШПИОН HERDWAVY ЗАПУЩЕН ---")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Функция, которая перехватывает ЛЮБОЙ вызов сетевых событий в игре
-local function hookRemotes(object)
-    if object:IsA("RemoteEvent") then
-        object.OnClientEvent:Connect(function(...)
-            print("[Сеть] Обнаружен входящий триггер: " .. object:GetFullName())
-        end)
-        
-        -- Шпионим за тем, что отправляет твой персонаж серверу
-        local oldFireServer = object.FireServer
-        object.FireServer = function(self, ...)
-            local args = {...}
-            print("🚀 ПЕРЕХВАЧЕН СИГНАЛ ПОКУПКИ/ДЕЙСТВИЯ!")
-            print("Точный путь к кнопке: game." .. self:GetFullName())
-            print("Что отправлено внутри пакета (Аргументы):")
-            for i, v in pairs(args) do
-                print("   Параметр [" .. i .. "]: " .. tostring(v))
+-- Функция сканирования всех сетевых каналов игры
+local function monitorRemote(remote)
+    if remote:IsA("RemoteEvent") then
+        -- Подключаемся к скрытому триггеру отправки данных на сервер
+        local oldFireServer
+        pcall(function()
+            oldFireServer = remote.FireServer
+            remote.FireServer = function(self, ...)
+                local args = {...}
+                -- Выводим жирные логи прямо в твою консоль F9!
+                print("====================================")
+                print("🚀 НАЙДЕНО СЕТЕВОЕ СОБЫТИЕ ИГРЫ!")
+                print("Точный путь в ReplicatedStorage: game." .. self:GetFullName())
+                print("Что отправляет игра (Аргументы пакета):")
+                for i, v in pairs(args) do
+                    print("   [" .. i .. "] Тип данных: (" .. type(v) .. ") -> Значение: " .. tostring(v))
+                end
+                print("====================================")
+                return oldFireServer(self, ...)
             end
-            return oldFireServer(self, ...)
-        end
+        end)
     end
 end
 
--- Включаем слежку по всей игре
+-- Включаем шпионаж для всех текущих и будущих объектов в игре
 for _, obj in pairs(game:GetDescendants()) do
-    pcall(hookRemotes, obj)
+    pcall(monitorRemote, obj)
 end
 
 game.DescendantAdded:Connect(function(obj)
-    pcall(hookRemotes, obj)
+    pcall(monitorRemote, obj)
 end)
+print("Шпион успешно внедрился в память. Открой F9 и купи семечко!")
