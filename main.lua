@@ -1,31 +1,46 @@
-print("--- ЧИСТЫЙ СЕТЕВОЙ ШПИОН HERDWAVY ЗАПУЩЕН ---")
+print("--- ТОТАЛЬНЫЙ СЕТЕВОЙ ШПИОН HERDWAVY ЗАПУЩЕН ---")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Функция сканирования всех сетевых каналов игры
+-- Функция для тотальной слежки за событиями и функциями
 local function monitorRemote(remote)
+    -- 1. Шпионим за RemoteEvent (FireServer)
     if remote:IsA("RemoteEvent") then
-        -- Подключаемся к скрытому триггеру отправки данных на сервер
         local oldFireServer
         pcall(function()
             oldFireServer = remote.FireServer
             remote.FireServer = function(self, ...)
                 local args = {...}
-                -- Выводим жирные логи прямо в твою консоль F9!
                 print("====================================")
-                print("🚀 НАЙДЕНО СЕТЕВОЕ СОБЫТИЕ ИГРЫ!")
-                print("Точный путь в ReplicatedStorage: game." .. self:GetFullName())
-                print("Что отправляет игра (Аргументы пакета):")
-                for i, v in pairs(args) do
-                    print("   [" .. i .. "] Тип данных: (" .. type(v) .. ") -> Значение: " .. tostring(v))
-                end
+                print("🚀 [EVENT] НАЙДЕН ПАКЕТ ИГРЫ!")
+                print("Путь: game." .. self:GetFullName())
+                for i, v in pairs(args) do print("   [" .. i .. "] -> " .. tostring(v)) end
                 print("====================================")
                 return oldFireServer(self, ...)
+            end
+        end)
+    
+    -- 2. Шпионим за RemoteFunction (InvokeServer) — САМОЕ ВАЖНОЕ ДЛЯ САДА!
+    elseif remote:IsA("RemoteFunction") then
+        local oldInvokeServer
+        pcall(function()
+            oldInvokeServer = remote.InvokeServer
+            remote.InvokeServer = function(self, ...)
+                local args = {...}
+                print("====================================")
+                print("🔮 [FUNCTION] ПЕРЕХВАЧЕН ЗАПРОС МАГАЗИНА!")
+                print("Точный путь: game." .. self:GetFullName())
+                print("Что отправлено внутри (Аргументы):")
+                for i, v in pairs(args) do 
+                    print("   [" .. i .. "] Тип: (" .. type(v) .. ") -> Значение: " .. tostring(v)) 
+                end
+                print("====================================")
+                return oldInvokeServer(self, ...)
             end
         end)
     end
 end
 
--- Включаем шпионаж для всех текущих и будущих объектов в игре
+-- Внедряемся во все скрытые папки игры
 for _, obj in pairs(game:GetDescendants()) do
     pcall(monitorRemote, obj)
 end
@@ -33,4 +48,4 @@ end
 game.DescendantAdded:Connect(function(obj)
     pcall(monitorRemote, obj)
 end)
-print("Шпион успешно внедрился в память. Открой F9 и купи семечко!")
+print("Тотальный шпион в памяти. Открывай F9 и купи ОДНО семечко!")
