@@ -1,13 +1,13 @@
-print("--- Herdwavy's Hub Clean Voidware Style Loaded ---")
+print("--- Herdwavy's Hub Auto-Enable Edition Loaded ---")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
--- НАСТРОЙКИ УПРАВЛЕНИЯ
-local espEnabled = false
-local gunEspEnabled = false
+-- ВЕРНУЛИ НАСТРОЙКИ: ТЕПЕРЬ ВСЁ ВКЛЮЧЕНО ПО УМОЛЧАНИЮ НА СТАРТЕ!
+local espEnabled = true
+local gunEspEnabled = true
 local heartbeatConnection = nil
 
 -- ЛОГИКА ESP (ИГРОКИ)
@@ -48,16 +48,24 @@ end
 local function toggleESP(state)
     espEnabled = state
     if espEnabled then
-        heartbeatConnection = RunService.Heartbeat:Connect(function()
-            for _, p in pairs(Players:GetPlayers()) do pcall(applyCustomESP, p) end
-        end)
+        if not heartbeatConnection then
+            heartbeatConnection = RunService.Heartbeat:Connect(function()
+                for _, p in pairs(Players:GetPlayers()) do pcall(applyCustomESP, p) end
+            end)
+        end
     else
-        if heartbeatConnection then heartbeatConnection:Disconnect() end
+        if heartbeatConnection then 
+            heartbeatConnection:Disconnect() 
+            heartbeatConnection = nil
+        end
         for _, p in pairs(Players:GetPlayers()) do
             if p.Character then removeOldESP(p.Character) end
         end
     end
 end
+
+-- АВТО-СТАРТ ПОТОКА ДЛЯ ИГРОКОВ ПРИ ЗАПУСКЕ
+toggleESP(true)
 
 -- ЛОГИКА ESP (ПИСТОЛЕТ)
 task.spawn(function()
@@ -83,14 +91,13 @@ task.spawn(function()
 end)
 
 -- ==========================================================
---                    ИНТЕРФЕЙС GUI
+--               ТВОЯ СТАРАЯ ПРОСТОРНАЯ МЕНЮШКА
 -- ==========================================================
 
 if CoreGui:FindFirstChild("HerdwavysHubGui") then CoreGui.HerdwavysHubGui:Destroy() end
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
 ScreenGui.Name = "HerdwavysHubGui"
 
--- Основное Окно
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = UDim2.new(0, 480, 0, 280)
 MainFrame.Position = UDim2.new(0.5, -240, 0.5, -140)
@@ -105,7 +112,6 @@ local stroke = Instance.new("UIStroke", MainFrame)
 stroke.Color = Color3.fromRGB(255, 30, 30)
 stroke.Thickness = 2
 
--- Верхняя Панель
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundTransparency = 1
@@ -122,7 +128,6 @@ Logo.TextSize = 16
 Logo.TextXAlignment = Enum.TextXAlignment.Left
 Logo.ZIndex = 7
 
--- Кнопка Х (Закрыть чит полностью)
 local CloseBtn = Instance.new("TextButton", TopBar)
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position = UDim2.new(1, -40, 0, 5)
@@ -134,7 +139,6 @@ CloseBtn.TextSize = 14
 CloseBtn.ZIndex = 10
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Кнопка — (Свернуть в кнопку H)
 local MinimizeBtn = Instance.new("TextButton", TopBar)
 MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
 MinimizeBtn.Position = UDim2.new(1, -75, 0, 5)
@@ -145,14 +149,13 @@ MinimizeBtn.Font = Enum.Font.GothamBold
 MinimizeBtn.TextSize = 14
 MinimizeBtn.ZIndex = 10
 
--- Зона для кнопок-тумблеров
 local Content = Instance.new("Frame", MainFrame)
 Content.Size = UDim2.new(1, -40, 1, -60)
 Content.Position = UDim2.new(0, 20, 0, 50)
 Content.BackgroundTransparency = 1
 Content.ZIndex = 6
 
-local function createToggle(name, yPos, callback)
+local function createToggle(name, yPos, startActive, callback)
     local Card = Instance.new("Frame", Content)
     Card.Size = UDim2.new(1, 0, 0, 55)
     Card.Position = UDim2.new(0, 0, 0, yPos)
@@ -169,27 +172,34 @@ local function createToggle(name, yPos, callback)
     Lbl.TextColor3 = Color3.fromRGB(230, 230, 235)
     Lbl.Font = Enum.Font.GothamMedium
     Lbl.TextSize = 14
-    Lbl.TextXAlignment = Enum.TextXAlignment.Left
     Lbl.ZIndex = 8
+    Lbl.TextXAlignment = Enum.TextXAlignment.Left
 
     local Switch = Instance.new("TextButton", Card)
     Switch.Size = UDim2.new(0, 48, 0, 26)
     Switch.Position = UDim2.new(1, -65, 0.5, -13)
-    Switch.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     Switch.Text = ""
-    Switch.ZIndex = 15 -- МАКСИМАЛЬНЫЙ СЛОЙ
-
+    Switch.ZIndex = 15
     Instance.new("UICorner", Switch).CornerRadius = UDim.new(1, 0)
 
     local Dot = Instance.new("Frame", Switch)
     Dot.Size = Vector2.new(20, 20)
-    Dot.Position = UDim2.new(0, 3, 0.5, -10)
-    Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Dot.BorderSizePixel = 0
     Dot.ZIndex = 16
     Instance.new("UICorner", Dot).CornerRadius = UDim.new(1, 0)
 
-    local active = false
+    -- Настраиваем визуальное положение тумблера в зависимости от дефолтного статуса (ВКЛ)
+    local active = startActive
+    if active then
+        Switch.BackgroundColor3 = Color3.fromRGB(255, 30, 30) -- Красный неон (ВКЛ)
+        Dot.Position = UDim2.new(1, -23, 0.5, -10)
+        Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    else
+        Switch.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+        Dot.Position = UDim2.new(0, 3, 0.5, -10)
+        Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    end
+
     Switch.MouseButton1Click:Connect(function()
         active = not active
         callback(active)
@@ -203,10 +213,10 @@ local function createToggle(name, yPos, callback)
     end)
 end
 
-createToggle("Player ESP (Chams)", 5, function(s) toggleESP(s) end)
-createToggle("Dropped Gun ESP", 70, function(s) gunEspEnabled = s end)
+-- Спавним тумблеры и передаем им статус true (включено по умолчанию)
+createToggle("Player ESP (Chams)", 5, true, function(s) toggleESP(s) end)
+createToggle("Dropped Gun ESP", 70, true, function(s) gunEspEnabled = s end)
 
--- Маленькая Кнопка H в углу экрана
 local TglBtn = Instance.new("TextButton", ScreenGui)
 TglBtn.Size = UDim2.new(0, 45, 0, 45)
 TglBtn.Position = UDim2.new(0, 15, 0, 15)
