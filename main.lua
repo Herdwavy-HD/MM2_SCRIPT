@@ -1,51 +1,63 @@
-print("--- HERDWAVY'S SPEED-HUB METHOD LAUNCHED ---")
+print("--- HERDWAVY'S FULL REAL SEED SHOP LAUNCHED ---")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui")
 
 if CoreGui:FindFirstChild("HerdwavyGardenGui") then CoreGui.HerdwavyGardenGui:Destroy() end
 
+-- 📊 ПОЛНЫЙ И ТОЧНЫЙ СПИСОК СЕМЯН СЕЛИ ПО ТВОИМ СКРИНШОТАМ С ПРАВИЛЬНЫМИ ID
 local seedList = {
-    "Basic Seed", "Bamboo Seed", "Rose Seed", "Tulip Seed", 
-    "Sunflower Seed", "Cactus Seed", "Lily Seed", "Lotus Seed"
+    {name = "Carrot",          id = 1},
+    {name = "Strawberry",      id = 2},
+    {name = "Blueberry",       id = 3},
+    {name = "Tulip",           id = 4},
+    {name = "Tomato",          id = 5},
+    {name = "Apple",           id = 6},
+    {name = "Corn",            id = 7},
+    {name = "Bamboo",          id = 8},
+    {name = "Cactus",          id = 9},
+    {name = "Pineapple",       id = 10},
+    {name = "Mushroom",        id = 11},
+    {name = "Green Bean",      id = 12},
+    {name = "Banana",          id = 13},
+    {name = "Grape",           id = 14},
+    {name = "Coconut",         id = 15},
+    {name = "Mango",           id = 16},
+    {name = "Dragon Fruit",    id = 17},
+    {name = "Acorn",           id = 18},
+    {name = "Cherry",          id = 19},
+    {name = "Sunflower",       id = 20},
+    {name = "Venus Fly Trap",  id = 21},
+    {name = "Pomegranate",     id = 22},
+    {name = "Poison Apple",    id = 23},
+    {name = "Venom Spitter",   id = 24},
+    {name = "Moon Bloom",      id = 25},
+    {name = "Hypno Bloom",     id = 26}, -- Твой порядок: сначала гипно
+    {name = "Dragon's Breath", id = 27}  -- потом драгон бретх
 }
 
 local selectedSeeds = {}
 _G.BuyAmount = 10
 _G.IsBuying = false
 
--- ФУНКЦИЯ ДЛЯ СВЕРХБЫСТРОГО СПАМА ПО ВСЕМ НАЙДЕННЫМ КАНАЛАМ (КАК В SPEED HUB)
-local function speedHubMassBuy(seedName)
-    -- Находим вообще все RemoteEvent и RemoteFunction в игре
-    for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
-        if obj:IsA("RemoteEvent") then
-            -- Спамим во все события подряд, подставляя наше семя
-            pcall(function() obj:FireServer(seedName, 1) end)
-            pcall(function() obj:FireServer(seedName) end)
-            pcall(function() obj:FireServer(1, seedName) end)
-        elseif obj:IsA("RemoteFunction") then
-            -- Спамим во все удаленные функции
-            pcall(function() obj:InvokeServer(seedName, 1) end)
-            pcall(function() obj:InvokeServer(seedName) end)
-        end
-    end
-end
+local buyRemote = ReplicatedStorage:FindFirstChild("BuyItem", true) 
+               or ReplicatedStorage:FindFirstChild("BuySeed", true)
+               or ReplicatedStorage:FindFirstChild("Remote", true):FindFirstChild("BuyItem")
 
 local function startMultiBuying()
+    if not buyRemote then return end
     task.spawn(function()
         for i = 1, _G.BuyAmount do
             if not _G.IsBuying then break end
-            
-            -- Проходимся по выбранным семенам
-            for seedName, isSelected in pairs(selectedSeeds) do
-                if isSelected then
-                    -- Запускаем массовую отправку пакетов без задержек и ТП!
-                    speedHubMassBuy(seedName)
+            for _, seedInfo in pairs(seedList) do
+                if selectedSeeds[seedInfo.name] then
+                    pcall(function() 
+                        buyRemote:FireServer(seedInfo.id, 1) 
+                    end)
                 end
             end
-            task.wait(0.02) -- Микро-пауза, чтобы Solara не вылетела от такой мощи
+            task.wait(0.03)
         end
         _G.IsBuying = false
-        print("Herdwavy's Hub: Массовая закупка пакетов завершена!")
     end)
 end
 
@@ -94,7 +106,7 @@ ScrollList.Size = UDim2.new(1, -40, 0, 140)
 ScrollList.Position = UDim2.new(0, 20, 0, 77)
 ScrollList.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 ScrollList.BorderSizePixel = 0
-ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 34)
+ScrollList.CanvasSize = UDim2.new(0, 0, 0, #seedList * 34) -- Авто-размер под 27 семян!
 ScrollList.ScrollBarThickness = 4
 ScrollList.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30)
 ScrollList.Visible = false
@@ -120,10 +132,10 @@ SafeLabel.ZIndex = 6
 local function updateCountText()
     local c = 0
     local names = {}
-    for k, v in pairs(selectedSeeds) do 
-        if v then 
+    for _, seedInfo in pairs(seedList) do 
+        if selectedSeeds[seedInfo.name] then 
             c = c + 1 
-            table.insert(names, k:gsub(" Seed", "")) 
+            table.insert(names, seedInfo.name) 
         end 
     end
     ListToggleBtn.Text = "▼ ВЫБРАТЬ СЕМЕНА ("..c.." выбрано) ▼"
@@ -137,8 +149,8 @@ local function updateCountText()
     end
 end
 
-for _, seedName in pairs(seedList) do
-    selectedSeeds[seedName] = false
+for _, seedInfo in pairs(seedList) do
+    selectedSeeds[seedInfo.name] = false
     
     local SeedRow = Instance.new("Frame", ScrollList)
     SeedRow.Size = UDim2.new(1, -10, 0, 30)
@@ -149,7 +161,7 @@ for _, seedName in pairs(seedList) do
     SeedNameLabel.Size = UDim2.new(1, -50, 1, 0)
     SeedNameLabel.Position = UDim2.new(0, 10, 0, 0)
     SeedNameLabel.BackgroundTransparency = 1
-    SeedNameLabel.Text = seedName
+    SeedNameLabel.Text = seedInfo.name
     SeedNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     SeedNameLabel.Font = Enum.Font.GothamMedium
     SeedNameLabel.TextSize = 12
@@ -165,8 +177,8 @@ for _, seedName in pairs(seedList) do
     Instance.new("UICorner", CheckBox).CornerRadius = UDim.new(0, 4)
     
     CheckBox.MouseButton1Click:Connect(function()
-        selectedSeeds[seedName] = not selectedSeeds[seedName]
-        if selectedSeeds[seedName] then
+        selectedSeeds[seedInfo.name] = not selectedSeeds[seedInfo.name]
+        if selectedSeeds[seedInfo.name] then
             CheckBox.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
             CheckBox.Text = "✓"
             CheckBox.TextColor3 = Color3.fromRGB(255, 255, 255)
