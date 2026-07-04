@@ -1,5 +1,5 @@
 -- ==========================================================
--- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ESP СИЛУЭТЫ
+-- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ЛОГИКА СИЛУЭТОВ (ESP)
 -- ==========================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -57,6 +57,9 @@ local function togglePlayerESP(state)
         end
     end
 end
+-- ==========================================================
+-- ЧАСТЬ 2: ОСНОВА ОКНА И УЗКИЕ КНОПКИ WINDOWS (ФИКС ВЫСОТЫ)
+-- ==========================================================
 UserInputService.JumpRequest:Connect(function()
     if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
         localPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
@@ -95,22 +98,25 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
--- Фикс контейнера и разжатых кнопок
+-- Идеальные прямоугольные кнопки в самый верхний край
 local ControlBox = Instance.new("Frame", MainFrame)
-ControlBox.Size = UDim2.new(0, 120, 0, 30) ControlBox.Position = UDim2.new(1, -145, 0, 15) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
+ControlBox.Size = UDim2.new(0, 150, 0, 20) 
+ControlBox.Position = UDim2.new(1, -165, 0, 4) 
+ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
     local btn = Instance.new("TextButton", ControlBox)
-    btn.Size = UDim2.new(0, 28, 0, 28) btn.Position = UDim2.new(0, offset, 0, 0)
+    btn.Size = UDim2.new(0, 44, 0, 16) -- Узкие и широкие прямоугольники Windows
+    btn.Position = UDim2.new(0, offset, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
-    btn.Font = Enum.Font.GothamBold btn.TextSize = 12 btn.ZIndex = 31
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 10 btn.ZIndex = 31
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
     btn.MouseButton1Down:Connect(callback)
 end
 
 createWinButton("—", 0, Color3.new(0.8, 0.8, 0.8), function() MainFrame.Visible = false end)
 local isMaximized = false
-createWinButton("🗖", 38, Color3.new(0.8, 0.8, 0.8), function()
+createWinButton("🗖", 48, Color3.new(0.8, 0.8, 0.8), function()
     isMaximized = not isMaximized
     if isMaximized then
         MainFrame.Size = UDim2.new(1, 0, 1, 0) MainFrame.Position = UDim2.new(0, 0, 0, 0) mCorner.CornerRadius = UDim.new(0, 0)
@@ -118,7 +124,10 @@ createWinButton("🗖", 38, Color3.new(0.8, 0.8, 0.8), function()
         MainFrame.Size = UDim2.new(0, 640, 0, 420) MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210) mCorner.CornerRadius = UDim.new(0, 14)
     end
 end)
-createWinButton("X", 76, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+createWinButton("X", 96, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+-- ==========================================================
+-- ЧАСТЬ 3: ГЕНЕРАЦИЯ 6 ВКЛАДОК И СПИСКОВ МАГАЗИНОВ
+-- ==========================================================
 local pages, tabs = {}, {}
 
 local function createPage(name, order)
@@ -210,6 +219,9 @@ end
 fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Baby Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (SEEDS)")
 fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
+-- ==========================================================
+-- ЧАСТЬ 4: СЛАЙДЕРЫ ХАКОВ, SERVER HOP, РАБОЧИЙ REJOIN И КНОПКА H
+-- ==========================================================
 local function createToggleRow(page, title, yOffset, callback)
     local card = Instance.new("Frame", page)
     card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
