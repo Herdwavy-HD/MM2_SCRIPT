@@ -1,4 +1,6 @@
-print("--- HERDWAVY'S PREMIUM HUB FOR GAG2 LOADED ---")
+-- ==========================================================
+-- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ЛОГИКА СИЛУЭТОВ (ESP)
+-- ==========================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
@@ -7,8 +9,8 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
-local selfEspEnabled, playerEspEnabled = false, false
-local selfHeartbeat, playerHeartbeat = nil, nil
+local selfEsp, playerEsp = false, false
+local selfHb, playerHb = nil, nil
 local infJump, noclip = false, false
 
 local function drawHighlight(target, name, color, fillTrans)
@@ -23,13 +25,13 @@ local function drawHighlight(target, name, color, fillTrans)
 end
 
 local function toggleSelfESP(state)
-    selfEspEnabled = state
-    if selfEspEnabled then
-        selfHeartbeat = RunService.Heartbeat:Connect(function()
+    selfEsp = state
+    if selfEsp then
+        selfHb = RunService.Heartbeat:Connect(function()
             pcall(drawHighlight, localPlayer.Character, "SelfChams", Color3.new(1,1,1), 0.4)
         end)
     else
-        if selfHeartbeat then selfHeartbeat:Disconnect() selfHeartbeat = nil end
+        if selfHb then selfHb:Disconnect() selfHb = nil end
         if localPlayer.Character and localPlayer.Character:FindFirstChild("SelfChams") then
             localPlayer.Character.SelfChams:Destroy()
         end
@@ -37,9 +39,9 @@ local function toggleSelfESP(state)
 end
 
 local function togglePlayerESP(state)
-    playerEspEnabled = state
-    if playerEspEnabled then
-        playerHeartbeat = RunService.Heartbeat:Connect(function()
+    playerEsp = state
+    if playerEsp then
+        playerHb = RunService.Heartbeat:Connect(function()
             for _, p in pairs(Players:GetPlayers()) do
                 if p ~= localPlayer and p.Character then
                     pcall(drawHighlight, p.Character, "PlayerChams", Color3.new(1,0,0), 0.6)
@@ -47,14 +49,15 @@ local function togglePlayerESP(state)
             end
         end)
     else
-        if playerHeartbeat then playerHeartbeat:Disconnect() playerHeartbeat = nil end
+        if playerHb then playerHb:Disconnect() playerHb = nil end
         for _, p in pairs(Players:GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("PlayerChams") then
                 p.Character.PlayerChams:Destroy()
             end
         end
     end
-endUserInputService.JumpRequest:Connect(function()
+end
+UserInputService.JumpRequest:Connect(function()
     if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
         localPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
     end
@@ -205,7 +208,7 @@ local function fillList(p, list, infoText)
 end
 
 fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Baby Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (SEEDS)")
-fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
+fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (DUST)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
 local function createToggleRow(page, title, yOffset, callback)
     local card = Instance.new("Frame", page)
