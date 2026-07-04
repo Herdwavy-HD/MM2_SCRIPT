@@ -1,5 +1,5 @@
 -- ==========================================================
--- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ЛОГИКА СИЛУЭТОВ (ESP)
+-- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ESP СИЛУЭТЫ
 -- ==========================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -95,22 +95,22 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
+-- Фикс контейнера и разжатых кнопок
 local ControlBox = Instance.new("Frame", MainFrame)
-ControlBox.Position = UDim2.new(1, -125, 0, 15) ControlBox.Position = UDim2.new(1, -115, 0, 10) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
+ControlBox.Size = UDim2.new(0, 120, 0, 30) ControlBox.Position = UDim2.new(1, -145, 0, 15) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
     local btn = Instance.new("TextButton", ControlBox)
-    btn.Size = UDim2.new(0, 25, 0, 25) btn.Position = UDim2.new(0, offset, 0, 0)
+    btn.Size = UDim2.new(0, 28, 0, 28) btn.Position = UDim2.new(0, offset, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
     btn.Font = Enum.Font.GothamBold btn.TextSize = 12 btn.ZIndex = 31
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
     btn.MouseButton1Down:Connect(callback)
 end
 
 createWinButton("—", 0, Color3.new(0.8, 0.8, 0.8), function() MainFrame.Visible = false end)
 local isMaximized = false
-createWinButton("🗖", 35, Color3.new(0.8, 0.8, 0.8), function()
+createWinButton("🗖", 38, Color3.new(0.8, 0.8, 0.8), function()
     isMaximized = not isMaximized
     if isMaximized then
         MainFrame.Size = UDim2.new(1, 0, 1, 0) MainFrame.Position = UDim2.new(0, 0, 0, 0) mCorner.CornerRadius = UDim.new(0, 0)
@@ -118,7 +118,7 @@ createWinButton("🗖", 35, Color3.new(0.8, 0.8, 0.8), function()
         MainFrame.Size = UDim2.new(0, 640, 0, 420) MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210) mCorner.CornerRadius = UDim.new(0, 14)
     end
 end)
-createWinButton("X", 70, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+createWinButton("X", 76, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
 local pages, tabs = {}, {}
 
 local function createPage(name, order)
@@ -208,7 +208,7 @@ local function fillList(p, list, infoText)
 end
 
 fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Baby Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (SEEDS)")
-fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (DUST)")
+fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
 local function createToggleRow(page, title, yOffset, callback)
     local card = Instance.new("Frame", page)
@@ -309,6 +309,19 @@ createActionButton(pFun, "Rejoin (Быстрый перезаход на сер�
         game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
     else
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+    end
+end)
+
+createActionButton(pFun, "Server Hop (Прыгнуть на другой сервер)", 50, function()
+    local sf = {}
+    local x = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://roblox.com"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=20"))
+    for _, s in pairs(x.data) do
+        if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(sf, s.id) end
+    end
+    if #sf > 0 then
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, sf[math.random(1, #sf)], localPlayer)
+    else
+        game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
     end
 end)
 
