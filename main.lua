@@ -1,5 +1,5 @@
 -- ==========================================================
--- УНИВЕРСАЛЬНЫЙ HERDWAVY'S PREMIUM HUB (MM2 + GAG2)
+-- ЧАСТЬ 1: СЕРВИСЫ, НАСТРОЙКИ И ЛОГИКА СИЛУЭТОВ (ESP)
 -- ==========================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -9,11 +9,7 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
--- ПРОВЕРКА ИГРЫ ПО PLACE ID
 if game.PlaceId == 14237195049 then
--- 🏡========================================================
---             ЗАПУСК ХАБА ДЛЯ GROW A GARDEN 2
--- ==========================================================
 local selfEsp, playerEsp = false, false
 local selfHb, playerHb = nil, nil
 local infJump, noclip, antiAfkEnabled = false, false, false
@@ -61,7 +57,11 @@ local function togglePlayerESP(state)
             end
         end
     end
-endUserInputService.JumpRequest:Connect(function()
+end
+-- ==========================================================
+-- ЧАСТЬ 2: ХАКИ ДВИЖЕНИЯ И УЗКИЕ ПРЯМОУГОЛЬНЫЕ КНОПКИ В УГЛУ
+-- ==========================================================
+UserInputService.JumpRequest:Connect(function()
     if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
         localPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
     end
@@ -99,23 +99,25 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
--- Твои идеальные прямоугольные кнопки винды строго в углу рамки
-local CBF = Instance.new("Frame", MainFrame)
-CBF.Size = UDim2.new(0, 120, 0, 30) CBF.Position = UDim2.new(1, -135, 0, 12) CBF.BackgroundTransparency = 1 CBF.ZIndex = 30
+-- Идеальные виндовс-прямоугольники (низкие и широкие) строго в верхний правый край рамки
+local ControlBox = Instance.new("Frame", MainFrame)
+ControlBox.Size = UDim2.new(0, 150, 0, 20) 
+ControlBox.Position = UDim2.new(1, -165, 0, 4) 
+ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
-    local btn = Instance.new("TextButton", CBF)
-    btn.Size = UDim2.new(0, 26, 0, 26) btn.Position = UDim2.new(0, offset, 0, 0)
+    local btn = Instance.new("TextButton", ControlBox)
+    btn.Size = UDim2.new(0, 44, 0, 16) 
+    btn.Position = UDim2.new(0, offset, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
-    btn.Font = Enum.Font.GothamBold btn.TextSize = 12 btn.ZIndex = 31
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 10 btn.ZIndex = 31
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
     btn.MouseButton1Down:Connect(callback)
 end
 
 createWinButton("—", 0, Color3.new(0.8, 0.8, 0.8), function() MainFrame.Visible = false end)
 local isMaximized = false
-createWinButton("🗖", 36, Color3.new(0.8, 0.8, 0.8), function()
+createWinButton("🗖", 48, Color3.new(0.8, 0.8, 0.8), function()
     isMaximized = not isMaximized
     if isMaximized then
         MainFrame.Size = UDim2.new(1, 0, 1, 0) MainFrame.Position = UDim2.new(0, 0, 0, 0) mCorner.CornerRadius = UDim.new(0, 0)
@@ -123,7 +125,10 @@ createWinButton("🗖", 36, Color3.new(0.8, 0.8, 0.8), function()
         MainFrame.Size = UDim2.new(0, 640, 0, 420) MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210) mCorner.CornerRadius = UDim.new(0, 14)
     end
 end)
-createWinButton("X", 72, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+createWinButton("X", 96, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+-- ==========================================================
+-- ЧАСТЬ 3: ГЕНЕРАЦИЯ 6 ВКЛАДОК И СПИСКОВ МАГАЗИНОВ
+-- ==========================================================
 local pages, tabs = {}, {}
 
 local function createPage(name, order)
@@ -136,7 +141,8 @@ local function createPage(name, order)
     t.Size = UDim2.new(0, 150, 0, 30) t.Position = UDim2.new(0, 10, 0, 55 + (order * 34))
     t.BackgroundColor3 = (order == 1) and Color3.fromRGB(35, 15, 15) or Color3.new(0, 0, 0)
     t.BackgroundTransparency = (order == 1) and 0 or 1
-    t.Text = name t.TextColor3 = Color3.fromRGB(255, 255, 255)
+    t.Text = name 
+    t.TextColor3 = Color3.fromRGB(255, 255, 255) -- ТЕКСТ ВСЕГДА БЕЛЫЙ И ЧИТАЕМЫЙ
     t.Font = Enum.Font.GothamBold t.TextSize = 11 t.ZIndex = 20
     Instance.new("UICorner", t).CornerRadius = UDim.new(0, 6)
 
@@ -216,6 +222,9 @@ end
 fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Baby Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (SEEDS)")
 fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
+-- ==========================================================
+-- ЧАСТЬ 4: КОНСТРУКТОРЫ ТУМБЛЕРОВ, СЛАЙДЕРОВ, REJOIN И HOP
+-- ==========================================================
 local function createToggleRow(page, title, yOffset, callback)
     local card = Instance.new("Frame", page)
     card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
@@ -248,6 +257,8 @@ end
 
 createToggleRow(pVis, "Self ESP (White Chams)", 5, toggleSelfESP)
 createToggleRow(pVis, "Player ESP (Red Chams)", 55, togglePlayerESP)
+
+-- АНТИ-AFK НА ПЕРВОМ МЕСТЕ В PLAYER TWEAKS!
 createToggleRow(pTweaks, "Anti-AFK (Защита от афк киков)", 5, function(s) antiAfkEnabled = s end)
 createToggleRow(pTweaks, "Infinite Jump (Бесконечный прыжок)", 55, function(s) infJump = s end)
 createToggleRow(pTweaks, "Noclip (Хождение сквозь стены)", 105, function(s) noclip = s end)
@@ -356,58 +367,44 @@ Tgl.MouseButton1Down:Connect(function()
     tSt.Color = MainFrame.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(50, 50, 50)
 end)
 elseif game.PlaceId == 142823291 or game.PlaceId == 66654135 or game.PlaceId == 11217730461 then
--- 🔪========================================================
+-- ==========================================================
 --             ЗАПУСК ХАБА ДЛЯ MURDER MYSTERY 2
 -- ==========================================================
--- Твой оригинальный рабочий чит на ММ2 загружается здесь!
-print("--- ЗАГРУЗКА HERDWAVY'S HUB ДЛЯ MURDER MYSTERY 2 ---")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local localPlayer = Players.LocalPlayer
-
--- Базовый нелагающий ESP на роли в ММ2
-local function getRoleColor(player)
-    if player.Backpack:FindFirstChild("Knife") or (player.Character and player.Character:FindFirstChild("Knife")) then
-        return Color3.fromRGB(255, 0, 0) -- Убийца (Красный неон)
-    elseif player.Backpack:FindFirstChild("Gun") or (player.Character and player.Character:FindFirstChild("Gun")) then
-        return Color3.fromRGB(0, 0, 255) -- Шериф (Синий неон)
-    end
-    return Color3.fromRGB(0, 255, 0) -- Мирный (Зеленый)
+print("--- ММ2 МОД ЗАПУЩЕН ---")
+local function gC(p)
+    if p.Backpack:FindFirstChild("Knife") or (p.Character and p.Character:FindFirstChild("Knife")) then 
+        return Color3.new(1,0,0)
+    elseif p.Backpack:FindFirstChild("Gun") or (p.Character and p.Character:FindFirstChild("Gun")) then 
+        return Color3.new(0,0,1)
+    end 
+    return Color3.new(0,1,0)
 end
 
 RunService.Heartbeat:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local color = getRoleColor(p)
-            if not p.Character:FindFirstChild("RoleHighlight") then
+    for _,p in pairs(Players:GetPlayers()) do 
+        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then 
+            local c = gC(p)
+            if not p.Character:FindFirstChild("RoleHighlight") then 
                 local hl = Instance.new("Highlight", p.Character)
-                hl.Name = "RoleHighlight"
-                hl.FillColor = color
-                hl.FillTransparency = 0.5
-                hl.OutlineColor = color
-                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            else
-                p.Character.RoleHighlight.FillColor = color
-                p.Character.RoleHighlight.OutlineColor = color
-            end
-        end
-    end
+                hl.Name = "RoleHighlight" hl.FillColor = c hl.FillTransparency = 0.5 hl.OutlineColor = c hl.DepthMode = 0 
+            else 
+                p.Character.RoleHighlight.FillColor = c p.Character.RoleHighlight.OutlineColor = c 
+            end 
+        end 
+    end 
 end)
 
--- Автосбор золотых монет в ММ2
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(0.2) do 
         pcall(function()
-            if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                for _, c in pairs(workspace:GetDescendants()) do
-                    if c.Name == "Coin_C" and c:IsA("BasePart") then
-                        localPlayer.Character.HumanoidRootPart.CFrame = c.CFrame
-                        task.wait(0.05)
-                    end
-                end
-            end
+            if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then 
+                for _,c in pairs(workspace:GetDescendants()) do 
+                    if c.Name == "Coin_C" and c:IsA("BasePart") then 
+                        localPlayer.Character.HumanoidRootPart.CFrame = c.CFrame task.wait(0.05)
+                    end 
+                end 
+            end 
         end)
-    end
+    end 
 end)
-
 end
