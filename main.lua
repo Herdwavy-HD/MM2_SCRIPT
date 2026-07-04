@@ -58,7 +58,7 @@ local function togglePlayerESP(state)
     end
 end
 -- ==========================================================
--- ЧАСТЬ 2: ОСНОВА ОКНА И УЗКИЕ КНОПКИ WINDOWS (ФИКС ВЫСОТЫ)
+-- ЧАСТЬ 2: ХАКИ ДВИЖЕНИЯ И УЗКИЕ КНОПКИ WINDOWS В УГЛУ
 -- ==========================================================
 UserInputService.JumpRequest:Connect(function()
     if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
@@ -98,15 +98,15 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
--- Идеальные прямоугольные кнопки в самый верхний край
+-- Идеальные прямоугольные кнопки впритык к верхнему правому углу рамки
 local ControlBox = Instance.new("Frame", MainFrame)
 ControlBox.Size = UDim2.new(0, 150, 0, 20) 
-ControlBox.Position = UDim2.new(1, -165, 0, 4) 
+ControlBox.Position = UDim2.new(1, -155, 0, 2) 
 ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
     local btn = Instance.new("TextButton", ControlBox)
-    btn.Size = UDim2.new(0, 44, 0, 16) -- Узкие и широкие прямоугольники Windows
+    btn.Size = UDim2.new(0, 44, 0, 16) -- Низкие прямоугольники Windows
     btn.Position = UDim2.new(0, offset, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
     btn.Font = Enum.Font.GothamBold btn.TextSize = 10 btn.ZIndex = 31
@@ -220,8 +220,102 @@ fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Co
 fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
 -- ==========================================================
--- ЧИСТЫЙ БЛОК 4: ТОЛЬКО REJOIN, SERVER HOP И КНОПКА H
+-- ЧАСТЬ 4: СЛАЙДЕРЫ, КНОПКА REJOIN НА ВИПКУ, SERVER HOP И КНОПКА H
 -- ==========================================================
+local function createToggleRow(page, title, yOffset, callback)
+    local card = Instance.new("Frame", page)
+    card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
+    card.BackgroundColor3 = Color3.fromRGB(22, 22, 26) card.ZIndex = 15
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel", card)
+    label.Size = UDim2.new(0, 230, 1, 0) label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1 label.Text = title label.TextColor3 = Color3.fromRGB(230, 230, 235)
+    label.Font = Enum.Font.GothamMedium label.TextSize = 11 label.TextXAlignment = Enum.TextXAlignment.Left label.ZIndex = 16
+
+    local btn = Instance.new("TextButton", card)
+    btn.Size = UDim2.new(0, 44, 0, 22) btn.Position = UDim2.new(1, -60, 0.5, -11)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) btn.Text = "" btn.ZIndex = 100
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+
+    local dot = Instance.new("Frame", btn)
+    dot.Size = UDim2.new(0, 14, 0, 14) dot.Position = UDim2.new(0, 3, 0.5, -7)
+    dot.BackgroundColor3 = Color3.new(1, 1, 1) dot.ZIndex = 101
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local isToggled = false
+    btn.MouseButton1Down:Connect(function()
+        isToggled = not isToggled
+        callback(isToggled)
+        btn.BackgroundColor3 = isToggled and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(45, 45, 50)
+        dot:TweenPosition(UDim2.new(0, isToggled and 27 or 3, 0.5, -7), 0, 0, 0.12)
+    end)
+end
+
+createToggleRow(pVis, "Self ESP (White Chams)", 5, toggleSelfESP)
+createToggleRow(pVis, "Player ESP (Red Chams)", 55, togglePlayerESP)
+createToggleRow(pTweaks, "Infinite Jump (Бесконечный прыжок)", 5, function(s) infJump = s end)
+createToggleRow(pTweaks, "Noclip (Хождение сквозь стены)", 55, function(s) noclip = s end)
+
+local function createSliderRow(page, title, yOffset, min, max, default, callback)
+    local card = Instance.new("Frame", page)
+    card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
+    card.BackgroundColor3 = Color3.fromRGB(22, 22, 26) card.ZIndex = 15
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel", card)
+    label.Size = UDim2.new(0, 180, 1, 0) label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1 label.Text = title .. ": " .. tostring(default)
+    label.TextColor3 = Color3.fromRGB(230, 230, 235) label.Font = Enum.Font.GothamMedium label.TextSize = 10
+    label.TextXAlignment = Enum.TextXAlignment.Left label.ZIndex = 16
+
+    local bar = Instance.new("TextButton", card)
+    bar.Size = UDim2.new(1, -240, 0, 6) bar.Position = UDim2.new(0, 200, 0.5, -3)
+    bar.BackgroundColor3 = Color3.fromRGB(45, 45, 50) bar.Text = "" bar.ZIndex = 16
+    Instance.new("UICorner", bar)
+
+    local fill = Instance.new("Frame", bar)
+    fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(255, 30, 30) fill.BorderSizePixel = 0 fill.ZIndex = 17
+    Instance.new("UICorner", fill)
+
+    local sliding = false
+    local function updateSlider()
+        local mouseX = math.clamp((localPlayer:GetMouse().X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        fill.Size = UDim2.new(mouseX, 0, 1, 0)
+        local value = math.floor(min + (mouseX * (max - min)))
+        label.Text = title .. ": " .. tostring(value)
+        callback(value)
+    end
+
+    bar.MouseButton1Down:Connect(function() sliding = true updateSlider() end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end end)
+    RunService.Heartbeat:Connect(function() if sliding then pcall(updateSlider) end end)
+end
+
+createSliderRow(pTweaks, "WalkSpeed (Скорость)", 105, 16, 250, 16, function(v)
+    if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v
+    end
+end)
+
+createSliderRow(pTweaks, "JumpPower (Прыжок)", 155, 50, 350, 50, function(v)
+    if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").JumpPower = v
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").UseJumpPower = true
+    end
+end)
+
+local function createActionButton(page, title, yOffset, callback)
+    local btn = Instance.new("TextButton", page)
+    btn.Size = UDim2.new(1, 0, 0, 40) btn.Position = UDim2.new(0, 0, 0, yOffset)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 26) btn.Text = title btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 11 btn.ZIndex = 15
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
+    btn.MouseButton1Down:Connect(callback)
+end
+
 createActionButton(pFun, "Rejoin (Быстрый перезаход на сервер)", 5, function()
     if #game:GetService("Players"):GetPlayers() <= 1 then
         game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
@@ -232,15 +326,24 @@ end)
 
 createActionButton(pFun, "Server Hop (Прыгнуть на другой сервер)", 50, function()
     local sf = {}
-    local x = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://roblox.com" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=20"))
-    for _, server in pairs(x.data) do
-        if server.playing < server.maxPlayers and server.id ~= game.JobId then table.insert(sf, server.id) end
+    local x = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://roblox.com"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=20"))
+    for _, s in pairs(x.data) do
+        if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(sf, s.id) end
     end
     if #sf > 0 then
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, sf[math.random(1, #sf)], localPlayer)
     else
         game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
     end
+end)
+
+-- ЖЕЛЕЗНЫЙ ANTI-AFK: ЗАЩИТА ОТ КИКОВ 20 МИНУТ
+pcall(function()
+    localPlayer.Idled:Connect(function()
+        game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
 end)
 
 local Tgl = Instance.new("TextButton", Gui)
