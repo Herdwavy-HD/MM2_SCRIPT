@@ -1,51 +1,48 @@
--- ==========================================================
--- HERDWAVY'S MM2 FIXED SCRIPT (SOLARA 2026)
--- ==========================================================
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local localPlayer = Players.LocalPlayer
+local P = game:GetService("Players")
+local R = game:GetService("RunService")
+local lP = P.LocalPlayer
 
-local function getRoleColor(player)
-    if player.Backpack:FindFirstChild("Knife") or (player.Character and player.Character:FindFirstChild("Knife")) then
+local function gC(p)
+    if p.Backpack:FindFirstChild("Knife") or (p.Character and p.Character:FindFirstChild("Knife")) then 
         return Color3.fromRGB(255, 0, 0)
-    elseif player.Backpack:FindFirstChild("Gun") or (player.Character and player.Character:FindFirstChild("Gun")) then
+    elseif p.Backpack:FindFirstChild("Gun") or (p.Character and p.Character:FindFirstChild("Gun")) then 
         return Color3.fromRGB(0, 0, 255)
-    end
+    end 
     return Color3.fromRGB(0, 255, 0)
 end
 
-RunService.Heartbeat:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local color = getRoleColor(p)
-            if not p.Character:FindFirstChild("RoleHighlight") then
+R.Heartbeat:Connect(function()
+    for _, p in pairs(P:GetPlayers()) do 
+        if p ~= lP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then 
+            local c = gC(p)
+            if not p.Character:FindFirstChild("RoleHighlight") then 
                 local hl = Instance.new("Highlight", p.Character)
-                hl.Name = "RoleHighlight"
-                hl.FillColor = color
-                hl.FillTransparency = 0.5
-                hl.OutlineColor = color
-                hl.DepthMode = 0 -- Фикс: цифровой AlwaysOnTop для Solara
-            else
-                p.Character.RoleHighlight.FillColor = color
-                p.Character.RoleHighlight.OutlineColor = color
-            end
-        end
-    end
+                hl.Name = "RoleHighlight" 
+                hl.FillColor = c 
+                hl.FillTransparency = 0.5 
+                hl.OutlineColor = c 
+                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            else 
+                p.Character.RoleHighlight.FillColor = c 
+                p.Character.RoleHighlight.OutlineColor = c 
+            end 
+        end 
+    end 
 end)
 
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(0.2) do 
         pcall(function()
-            if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                for _, c in pairs(workspace:GetDescendants()) do
-                    if c.Name == "Coin_C" and c:IsA("BasePart") then
-                        localPlayer.Character.HumanoidRootPart.CFrame = c.CFrame
+            if lP.Character and lP.Character:FindFirstChild("HumanoidRootPart") then 
+                for _, c in pairs(workspace:GetDescendants()) do 
+                    if c.Name == "Coin_C" and c:IsA("BasePart") then 
+                        lP.Character.HumanoidRootPart.CFrame = c.CFrame 
                         task.wait(0.05)
-                    end
-                end
-            end
+                    end 
+                end 
+            end 
         end)
-    end
+    end 
 end)
 
-print("--- MM2 MOD SCRIPT WORKING ---")
+print("--- MM2 MOD RUNNING ---")
