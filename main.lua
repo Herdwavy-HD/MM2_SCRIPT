@@ -11,7 +11,7 @@ local localPlayer = Players.LocalPlayer
 
 local selfEsp, playerEsp = false, false
 local selfHb, playerHb = nil, nil
-local infJump, noclip = false, false
+local infJump, noclip, antiAfkEnabled = false, false, false
 
 local function drawHighlight(target, name, color, fillTrans)
     if target and not target:FindFirstChild(name) then
@@ -58,7 +58,7 @@ local function togglePlayerESP(state)
     end
 end
 -- ==========================================================
--- ЧАСТЬ 2: ХАКИ ДВИЖЕНИЯ И УЗКИЕ КНОПКИ WINDOWS СТРОГО В УГЛУ
+-- ЧАСТЬ 2: ХАКИ ДВИЖЕНИЯ И КНОПКИ ВИНДОВС ПРАВЕЕ СТРОГО В УГЛУ
 -- ==========================================================
 UserInputService.JumpRequest:Connect(function()
     if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
@@ -98,25 +98,26 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
--- Контейнер узких кнопок впритык к верхнему правому углу рамки (CBF)
+-- СДВИГ ПРАВЕЕ И НОРМАЛЬНЫЙ РАЗМЕР КНОПОК WINDOWS
 local CBF = Instance.new("Frame", MainFrame)
-CBF.Size = UDim2.new(0, 150, 0, 20) 
-CBF.Position = UDim2.new(1, -155, 0, 2) 
+CBF.Size = UDim2.new(0, 120, 0, 30) 
+CBF.Position = UDim2.new(1, -135, 0, 12) -- Уехали в самый правый край!
 CBF.BackgroundTransparency = 1 CBF.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
     local btn = Instance.new("TextButton", CBF)
-    btn.Size = UDim2.new(0, 44, 0, 16) -- Низкие прямоугольники Windows
+    btn.Size = UDim2.new(0, 26, 0, 26) -- Нормальные квадратные кнопки
     btn.Position = UDim2.new(0, offset, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
-    btn.Font = Enum.Font.GothamBold btn.TextSize = 10 btn.ZIndex = 31
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 12 btn.ZIndex = 31
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
     btn.MouseButton1Down:Connect(callback)
 end
 
 createWinButton("—", 0, Color3.new(0.8, 0.8, 0.8), function() MainFrame.Visible = false end)
 local isMaximized = false
-createWinButton("🗖", 48, Color3.new(0.8, 0.8, 0.8), function()
+createWinButton("🗖", 36, Color3.new(0.8, 0.8, 0.8), function()
     isMaximized = not isMaximized
     if isMaximized then
         MainFrame.Size = UDim2.new(1, 0, 1, 0) MainFrame.Position = UDim2.new(0, 0, 0, 0) mCorner.CornerRadius = UDim.new(0, 0)
@@ -124,7 +125,7 @@ createWinButton("🗖", 48, Color3.new(0.8, 0.8, 0.8), function()
         MainFrame.Size = UDim2.new(0, 640, 0, 420) MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210) mCorner.CornerRadius = UDim.new(0, 14)
     end
 end)
-createWinButton("X", 96, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+createWinButton("X", 72, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
 -- ==========================================================
 -- ЧАСТЬ 3: ГЕНЕРАЦИЯ 6 ВКЛАДОК И СПИСКОВ МАГАЗИНОВ
 -- ==========================================================
@@ -220,7 +221,7 @@ fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Co
 fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
 fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
 -- ==========================================================
--- ЧАСТЬ 4: КОНСТРУКТОР ТУМБЛЕРОВ, СЛАЙДЕРОВ, REJOIN И АНТИ-АФК
+-- ЧАСТЬ 4: КОНСТРУКТОРЫ ТУМБЛЕРОВ, СЛАЙДЕРОВ, REJOIN И ANTI-AFK
 -- ==========================================================
 local function createToggleRow(page, title, yOffset, callback)
     local card = Instance.new("Frame", page)
@@ -252,13 +253,13 @@ local function createToggleRow(page, title, yOffset, callback)
     end)
 end
 
--- НАПОЛНЯЕМ ВКЛАДКУ VISUALS ESP (ФИКС ИМЕНИ ФУНКЦИИ!)
 createToggleRow(pVis, "Self ESP (White Chams)", 5, toggleSelfESP)
 createToggleRow(pVis, "Player ESP (Red Chams)", 55, togglePlayerESP)
-
--- НАПОЛНЯЕМ ВКЛАДКУ PLAYER TWEAKS (ФИКС ИМЕНИ ФУНКЦИИ!)
 createToggleRow(pTweaks, "Infinite Jump (Бесконечный прыжок)", 5, function(s) infJump = s end)
 createToggleRow(pTweaks, "Noclip (Хождение сквозь стены)", 55, function(s) noclip = s end)
+
+-- ТУМБЛЕР ВКЛЮЧЕНИЯ И ВЫКЛЮЧЕНИЯ АНТИ-АФК В МЕНЮ
+createToggleRow(pFun, "Anti-AFK (Защита от афк киков)", 100, function(s) antiAfkEnabled = s end)
 
 local function createSliderRow(page, title, yOffset, min, max, default, callback)
     local card = Instance.new("Frame", page)
@@ -319,7 +320,6 @@ local function createActionButton(page, title, yOffset, callback)
     btn.MouseButton1Down:Connect(callback)
 end
 
--- НАПОЛНЯЕМ ВКЛАДКУ SERVER FUN (ИСПРАВЛЕНО!)
 createActionButton(pFun, "Rejoin (Быстрый перезаход на сервер)", 5, function()
     if #game:GetService("Players"):GetPlayers() <= 1 then
         game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
@@ -341,16 +341,17 @@ createActionButton(pFun, "Server Hop (Прыгнуть на другой сер�
     end
 end)
 
--- ХЕЖЕЗНЫЙ ANTI-AFK ОТ ВЫЛЕТОВ И КИКОВ В ИГРЕ
+-- РАБОТА АНТИ-АФК С ПОДДЕРЖКОЙ ВКЛЮЧЕНИЯ/ВЫКЛЮЧЕНИЯ
 pcall(function()
     localPlayer.Idled:Connect(function()
-        game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        if antiAfkEnabled then
+            game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end
     end)
 end)
 
--- ОФИЦИАЛЬНАЯ КНОПКА H НА ЭКРАНЕ (ФИКС ЗАГРУЗКИ!)
 local Tgl = Instance.new("TextButton", Gui)
 Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15)
 Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30)
