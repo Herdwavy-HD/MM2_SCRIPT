@@ -1,20 +1,19 @@
 -- ==========================================================
--- HERDWAVY'S PREMIUM HUB: MURDER MYSTERY 2 (ЧАСТЬ 1)
+-- HERDWAVY'S MM2 FIXED SCRIPT (SOLARA 2026)
 -- ==========================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local localPlayer = Players.LocalPlayer
 
--- Функция точного определения роли и цвета игрока
 local function getRoleColor(player)
     if player.Backpack:FindFirstChild("Knife") or (player.Character and player.Character:FindFirstChild("Knife")) then
-        return Color3.fromRGB(255, 0, 0) -- Убийца (Красный)
+        return Color3.fromRGB(255, 0, 0)
     elseif player.Backpack:FindFirstChild("Gun") or (player.Character and player.Character:FindFirstChild("Gun")) then
-        return Color3.fromRGB(0, 0, 255) -- Шериф (Синий)
+        return Color3.fromRGB(0, 0, 255)
     end
-    return Color3.fromRGB(0, 255, 0) -- Мирный (Зеленый)
+    return Color3.fromRGB(0, 255, 0)
 end
--- Постоянная подсветка всех игроков на карте (ESP Chams)
+
 RunService.Heartbeat:Connect(function()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -25,7 +24,7 @@ RunService.Heartbeat:Connect(function()
                 hl.FillColor = color
                 hl.FillTransparency = 0.5
                 hl.OutlineColor = color
-                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                hl.DepthMode = 0 -- Фикс: цифровой AlwaysOnTop для Solara
             else
                 p.Character.RoleHighlight.FillColor = color
                 p.Character.RoleHighlight.OutlineColor = color
@@ -34,7 +33,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Ультра-быстрый автосбор падающих золотых монет
 task.spawn(function()
     while task.wait(0.2) do
         pcall(function()
@@ -50,4 +48,4 @@ task.spawn(function()
     end
 end)
 
-print("--- HERDWAVY'S MM2 SCRIPT SUCCESSFULY LOADED ---")
+print("--- MM2 MOD SCRIPT WORKING ---")
