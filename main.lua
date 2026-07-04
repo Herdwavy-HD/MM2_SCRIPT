@@ -13,28 +13,39 @@ local function ch(t, n, f, tl)
         local h = Instance.new("Highlight", t) h.Name = n
         h.FillColor = f h.FillTransparency = tl h.OutlineColor = f h.DepthMode = 0
     end
-endlocal function gC(p)
-    if p.Backpack:FindFirstChild("Knife") or (p.Character and p.Character:FindFirstChild("Knife")) then return Color3.new(1,0,0)
-    elseif p.Backpack:FindFirstChild("Gun") or (p.Character and p.Character:FindFirstChild("Gun")) then return Color3.new(0,0,1) end
-    return Color3.new(0,1,0)
+end
+-- ИДЕАЛЬНАЯ ПРОВЕРКА РОЛЕЙ (ИЩЕТ ОРУЖИЕ В РУКАХ И В РЮКЗАКЕ)
+local function gC(p)
+    local c = p.Character
+    if p.Backpack:FindFirstChild("Knife") or (c and c:FindFirstChild("Knife")) then 
+        return Color3.fromRGB(255, 0, 0) -- УБИЙЦА
+    elseif p.Backpack:FindFirstChild("Gun") or (c and c:FindFirstChild("Gun")) then 
+        return Color3.fromRGB(0, 0, 255) -- ШЕРИФ
+    end
+    return Color3.fromRGB(0, 255, 0) -- МИРНЫЙ
 end
 
 R.Heartbeat:Connect(function()
     if mE then
         for _, p in pairs(P:GetPlayers()) do
             if p ~= lP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local c = gC(p) pcall(ch, p.Character, "RoleHighlight", c, 0.5)
+                local color = gC(p) pcall(ch, p.Character, "RoleHighlight", color, 0.5)
             end
         end
     else
         for _, p in pairs(P:GetPlayers()) do if p.Character and p.Character:FindFirstChild("RoleHighlight") then p.Character.RoleHighlight:Destroy() end end
     end
+    -- СТАРЫЙ РАБОЧИЙ ПОИСК ПИСТОЛЕТА ЧЕРЕЗ ВСЕ ОБЪЕКТЫ КАРТЫ
     if gE then
-        local gd = workspace:FindFirstChild("GunDrop") or workspace:FindFirstChild("Drop") or workspace:FindFirstChild("Gun")
-        if gd and gd:IsA("BasePart") then pcall(ch, gd, "GunESP", Color3.new(1,1,0), 0.2) end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "GunDrop" and v:IsA("BasePart") then
+                pcall(ch, v, "GunESP", Color3.fromRGB(255, 215, 0), 0.2)
+            end
+        end
     else
-        local gd = workspace:FindFirstChild("GunDrop") or workspace:FindFirstChild("Drop") or workspace:FindFirstChild("Gun")
-        if gd and gd:FindFirstChild("GunESP") then gd.GunESP:Destroy() end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "GunDrop" and v:FindFirstChild("GunESP") then v.GunESP:Destroy() end
+        end
     end
 end)
 U.JumpRequest:Connect(function() if iJ and lP.Character and lP.Character:FindFirstChildOfClass("Humanoid") then lP.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping") end end)
@@ -90,11 +101,11 @@ end
 cT(pMain, "Player ESP (Подсветка ролей)", 5, function(s) mE = s end) cT(pMain, "Gun Drop ESP (Подсветка пистолета)", 55, function(s) gE = s end)
 cT(pTweaks, "Anti-AFK (Защита от афк киков)", 5, function(s) aA = s end) cT(pTweaks, "Fly (Режим полета на W,A,S,D)", 55, function(s) flyE = s end) cT(pTweaks, "Infinite Jump (Бесконечный прыжок)", 105, function(s) iJ = s end) cT(pTweaks, "Noclip (Хождение сквозь стены)", 155, function(s) nc = s end)
 
-local function cS(page, title, y, min, max, def, callback)
+local function cS(page, title, y, min, max, default, callback)
     local card = Instance.new("Frame", page) card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, y) card.BackgroundColor3 = Color3.fromRGB(22, 22, 26) card.ZIndex = 15 Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-    local label = Instance.new("TextLabel", card) label.Size = UDim2.new(0, 180, 1, 0) label.Position = UDim2.new(0, 15, 0, 0) label.BackgroundTransparency = 1 label.Text = title..": "..tostring(def) label.TextColor3 = Color3.fromRGB(240, 240, 245) label.Font = Enum.Font.GothamBold label.TextSize = 11 label.TextXAlignment = 0 label.ZIndex = 16
-    local bar = Instance.new("TextButton", card) bar.Size = UDim2.new(1, -240, 0, 6) bar.Position = UDim2.new(0, 200, 0.5, -3) bar.BackgroundColor3 = Color3.fromRGB(45, 45, 50) bar.Text = "" bar.ZIndex = 16 Instance.new("UICorner", bar)
-    local fill = Instance.new("Frame", bar) fill.Size = UDim2.new((def-min)/(max-min), 0, 1, 0) fill.BackgroundColor3 = Color3.fromRGB(255, 30, 30) fill.BorderSizePixel = 0 fill.ZIndex = 17 Instance.new("UICorner", fill)
+    local label = Instance.new("TextLabel", card) label.Size = UDim2.new(0, 180, 1, 0) label.Position = UDim2.new(0, 15, 0, 0) label.BackgroundTransparency = 1 label.Text = title..": "..tostring(default) label.TextColor3 = Color3.fromRGB(240, 240, 245) label.Font = Enum.Font.GothamBold label.TextSize = 11 label.TextXAlignment = 0 label.ZIndex = 16
+    local bar = Instance.new("TextButton", card) bar.Size = UDim2.new(1,-240, 0, 6) bar.Position = UDim2.new(0, 200, 0.5, -3) bar.BackgroundColor3 = Color3.fromRGB(45, 45, 50) bar.Text = "" bar.ZIndex = 16 Instance.new("UICorner", bar)
+    local fill = Instance.new("Frame", bar) fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0) fill.BackgroundColor3 = Color3.fromRGB(255, 30, 30) fill.BorderSizePixel = 0 fill.ZIndex = 17 Instance.new("UICorner", fill)
     local sliding = false local function update() local mouseX = math.clamp((lP:GetMouse().X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X, 0, 1) fill.Size = UDim2.new(mouseX, 0, 1, 0) local value = math.floor(min+(mouseX*(max-min))) label.Text = title..": "..tostring(value) callback(value) end bar.MouseButton1Down:Connect(function() sliding = true update() end) U.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end end) R.Heartbeat:Connect(function() if sliding then pcall(update) end end)
 end
 cS(pTweaks, "WalkSpeed (Скорость бега)", 205, 16, 250, 16, function(v) if lP.Character and lP.Character:FindFirstChildOfClass("Humanoid") then lP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v end end) cS(pTweaks, "JumpPower (Высота прыжка)", 255, 50, 350, 50, function(v) if lP.Character and lP.Character:FindFirstChildOfClass("Humanoid") then lP.Character:FindFirstChildOfClass("Humanoid").JumpPower = v lP.Character:FindFirstChildOfClass("Humanoid").UseJumpPower = true end end)
