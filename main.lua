@@ -96,7 +96,7 @@ Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.B
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
 local ControlBox = Instance.new("Frame", MainFrame)
-ControlBox.Size = UDim2.new(0, 110, 0, 30) ControlBox.Position = UDim2.new(1, -115, 0, 10) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
+ControlBox.Position = UDim2.new(1, -125, 0, 15) ControlBox.Position = UDim2.new(1, -115, 0, 10) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
 
 local function createWinButton(text, offset, color, callback)
     local btn = Instance.new("TextButton", ControlBox)
@@ -305,16 +305,10 @@ local function createActionButton(page, title, yOffset, callback)
 end
 
 createActionButton(pFun, "Rejoin (Быстрый перезаход на сервер)", 5, function()
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
-end)
-
-createActionButton(pFun, "Server Hop (Прыгнуть на другой сервер)", 50, function()
-    local res = HttpService:JSONDecode(game:HttpGet("https://roblox.com" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
-    for _, server in pairs(res.data) do
-        if server.playing < server.maxTokens and server.id ~= game.JobId then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, localPlayer)
-            break
-        end
+    if #game:GetService("Players"):GetPlayers() <= 1 then
+        game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
+    else
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
     end
 end)
 
