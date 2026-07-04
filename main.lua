@@ -1,1 +1,330 @@
-local P,R,C,lP=game:GetService("Players"),game:GetService("RunService"),game:GetService("CoreGui"),game:GetService("Players").LocalPlayer local sE,pE,sH,pH=false,false,nil,nil local function aS() if sE and lP.Character and not lP.Character:FindFirstChild("SelfChams") then local h=Instance.new("Highlight",lP.Character)h.Name="SelfChams" h.FillColor=Color3.fromRGB(255,255,255)h.FillTransparency=0.4 h.OutlineTransparency=0 h.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop end end local function tS(st) sE=st if sE then sH=R.Heartbeat:Connect(aS) else if sH then sH:Disconnect()sH=nil end if lP.Character and lP.Character.SelfChams then lP.Character.SelfChams:Destroy() end end end local function aP(p) if pE and p~=lP and p.Character and not p.Character:FindFirstChild("PlayerChams") then local h=Instance.new("Highlight",p.Character)h.Name="PlayerChams" h.FillColor=Color3.fromRGB(255,30,30)h.FillTransparency=0.6 h.OutlineTransparency=0.2 h.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop end end local function tP(st) pE=st if pE then pH=R.Heartbeat:Connect(function() for _,p in pairs(P:GetPlayers()) do pcall(aP,p) end end) else if pH then pH:Disconnect()pH=nil end for _,p in pairs(P:GetPlayers()) do if p.Character and p.Character:FindFirstChild("PlayerChams") then p.Character.PlayerChams:Destroy() end end end end if C:FindFirstChild("HerdwavysHubGui") then C.HerdwavysHubGui:Destroy() end local Gui=Instance.new("ScreenGui",C)Gui.Name="HerdwavysHubGui" local MF=Instance.new("Frame",Gui)MF.Size=UDim2.new(0,300,0,200)MF.Position=UDim2.new(0.5,-150,0.5,-100)MF.BackgroundColor3=Color3.fromRGB(12,12,14)MF.Active=true MF.Draggable=true local mC=Instance.new("UICorner",MF)mC.CornerRadius=UDim.new(0,10)Instance.new("UIStroke",MF).Color=Color3.fromRGB(255,30,30) local LT=Instance.new("TextLabel",MF)LT.Size=UDim2.new(1,-80,0,40)LT.Position=UDim2.new(0,15,0,0)LT.BackgroundTransparency=1 LT.Text="Herdwavy's Hub" LT.TextColor3=Color3.fromRGB(255,255,255)LT.Font=Enum.Font.GothamBold LT.TextSize=14 LT.TextXAlignment=Enum.TextXAlignment.Left local CBF=Instance.new("Frame",MF)CBF.Size=UDim2.new(0,60,0,30)CBF.Position=UDim2.new(1,-65,0,8)CBF.BackgroundTransparency=1 local function winB(t,x,cl,cb) local b=Instance.new("TextButton",CBF)b.Size=UDim2.new(0,22,0,22)b.Position=UDim2.new(0,x,0,0)b.BackgroundColor3=Color3.fromRGB(25,25,30)b.Text=t b.TextColor3=cl b.Font=Enum.Font.GothamBold b.TextSize=10 Instance.new("UICorner",b).CornerRadius=UDim.new(0,5)b.MouseButton1Down:Connect(cb) end winB("—",0,Color3.fromRGB(200,200,200),function() MF.Visible = false end) winB("X",28,Color3.fromRGB(255,50,50),function() Gui:Destroy() end) local function makeB(t,y,cb) local b=Instance.new("TextButton",MF)b.Size=UDim2.new(1,-30,0,35)b.Position=UDim2.new(0,15,0,y)b.BackgroundColor3=Color3.fromRGB(22,22,26)b.Text=t b.TextColor3=Color3.fromRGB(130,130,140)b.Font=Enum.Font.GothamBold b.TextSize=11 Instance.new("UICorner",b).CornerRadius=UDim.new(0,6)local stroke=Instance.new("UIStroke",b)stroke.Color=Color3.fromRGB(40,40,45) local act=false b.MouseButton1Down:Connect(function() act=not act cb(act) b.BackgroundColor3=act and Color3.fromRGB(35,15,15) or Color3.fromRGB(22,22,26) b.TextColor3=act and Color3.fromRGB(255,50,50) or Color3.fromRGB(130,130,140) stroke.Color=act and Color3.fromRGB(255,30,30) or Color3.fromRGB(40,40,45) end) end makeB("Toggle Self ESP (White)",50,tS) makeB("Toggle Players ESP (Red)",95,tP) makeB("Speed Hack (Клик на [Z] = 100 Скорость / [X] = 16)",140,function(a) if a then _G.Ev=game:GetService("UserInputService").InputBegan:Connect(function(i) if i.KeyCode==Enum.KeyCode.Z and lP.Character and lP.Character:FindFirstChild("Humanoid") then lP.Character.Humanoid.WalkSpeed=100 elseif i.KeyCode==Enum.KeyCode.X and lP.Character and lP.Character:FindFirstChild("Humanoid") then lP.Character.Humanoid.WalkSpeed=16 end end) else if _G.Ev then _G.Ev:Disconnect() end if lP.Character and lP.Character:FindFirstChild("Humanoid") then lP.Character.Humanoid.WalkSpeed=16 end end end) local Tgl=Instance.new("TextButton",Gui)Tgl.Size=UDim2.new(0,40,0,45)Tgl.Position=UDim2.new(0,10,0,10)Tgl.BackgroundColor3=Color3.fromRGB(15,15,18)Tgl.Text="H" Tgl.TextColor3=Color3.fromRGB(255,30,30)Tgl.Font=Enum.Font.GothamBold Tgl.TextSize=20 Instance.new("UICorner",Tgl).CornerRadius=UDim.new(1,0) Tgl.MouseButton1Down:Connect(function() MF.Visible=not MF.Visible end)
+print("--- HERDWAVY'S PREMIUM HUB FOR GAG2 LOADED ---")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local localPlayer = Players.LocalPlayer
+
+local selfEspEnabled, playerEspEnabled = false, false
+local selfHeartbeat, playerHeartbeat = nil, nil
+local infJump, noclip = false, false
+
+local function drawHighlight(target, name, color, fillTrans)
+    if target and not target:FindFirstChild(name) then
+        local hl = Instance.new("Highlight", target)
+        hl.Name = name
+        hl.FillColor = color
+        hl.FillTransparency = fillTrans
+        hl.OutlineColor = color
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    end
+end
+
+local function toggleSelfESP(state)
+    selfEspEnabled = state
+    if selfEspEnabled then
+        selfHeartbeat = RunService.Heartbeat:Connect(function()
+            pcall(drawHighlight, localPlayer.Character, "SelfChams", Color3.new(1,1,1), 0.4)
+        end)
+    else
+        if selfHeartbeat then selfHeartbeat:Disconnect() selfHeartbeat = nil end
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("SelfChams") then
+            localPlayer.Character.SelfChams:Destroy()
+        end
+    end
+end
+
+local function togglePlayerESP(state)
+    playerEspEnabled = state
+    if playerEspEnabled then
+        playerHeartbeat = RunService.Heartbeat:Connect(function()
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= localPlayer and p.Character then
+                    pcall(drawHighlight, p.Character, "PlayerChams", Color3.new(1,0,0), 0.6)
+                end
+            end
+        end)
+    else
+        if playerHeartbeat then playerHeartbeat:Disconnect() playerHeartbeat = nil end
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("PlayerChams") then
+                p.Character.PlayerChams:Destroy()
+            end
+        end
+    end
+endUserInputService.JumpRequest:Connect(function()
+    if infJump and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        localPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
+
+RunService.Stepped:Connect(function()
+    if noclip and localPlayer.Character then
+        for _, part in pairs(localPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+    end
+end)
+
+if CoreGui:FindFirstChild("HerdwavysHubGui") then CoreGui.HerdwavysHubGui:Destroy() end
+local Gui = Instance.new("ScreenGui", CoreGui)
+Gui.Name = "HerdwavysHubGui"
+
+local MainFrame = Instance.new("Frame", Gui)
+MainFrame.Size = UDim2.new(0, 640, 0, 420)
+MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+MainFrame.Active = true MainFrame.Draggable = true MainFrame.ZIndex = 5
+
+local mCorner = Instance.new("UICorner", MainFrame)
+mCorner.CornerRadius = UDim.new(0, 14)
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(255, 30, 30)
+
+local SidePanel = Instance.new("Frame", MainFrame)
+SidePanel.Size = UDim2.new(0, 170, 1, 0)
+SidePanel.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+SidePanel.ZIndex = 10
+Instance.new("UICorner", SidePanel).CornerRadius = UDim.new(0, 14)
+
+local Logo = Instance.new("TextLabel", SidePanel)
+Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
+Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
+
+local ControlBox = Instance.new("Frame", MainFrame)
+ControlBox.Size = UDim2.new(0, 110, 0, 30) ControlBox.Position = UDim2.new(1, -115, 0, 10) ControlBox.BackgroundTransparency = 1 ControlBox.ZIndex = 30
+
+local function createWinButton(text, offset, color, callback)
+    local btn = Instance.new("TextButton", ControlBox)
+    btn.Size = UDim2.new(0, 25, 0, 25) btn.Position = UDim2.new(0, offset, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30) btn.Text = text btn.TextColor3 = color
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 12 btn.ZIndex = 31
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
+    btn.MouseButton1Down:Connect(callback)
+end
+
+createWinButton("—", 0, Color3.new(0.8, 0.8, 0.8), function() MainFrame.Visible = false end)
+local isMaximized = false
+createWinButton("🗖", 35, Color3.new(0.8, 0.8, 0.8), function()
+    isMaximized = not isMaximized
+    if isMaximized then
+        MainFrame.Size = UDim2.new(1, 0, 1, 0) MainFrame.Position = UDim2.new(0, 0, 0, 0) mCorner.CornerRadius = UDim.new(0, 0)
+    else
+        MainFrame.Size = UDim2.new(0, 640, 0, 420) MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210) mCorner.CornerRadius = UDim.new(0, 14)
+    end
+end)
+createWinButton("X", 70, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+local pages, tabs = {}, {}
+
+local function createPage(name, order)
+    local p = Instance.new("Frame", MainFrame)
+    p.Size = UDim2.new(1, -195, 1, -40) p.Position = UDim2.new(0, 185, 0, 20)
+    p.BackgroundTransparency = 1 p.ZIndex = 10 p.Visible = (order == 1)
+    pages[order] = p
+
+    local t = Instance.new("TextButton", SidePanel)
+    t.Size = UDim2.new(0, 150, 0, 30) t.Position = UDim2.new(0, 10, 0, 55 + (order * 34))
+    t.BackgroundColor3 = (order == 1) and Color3.fromRGB(35, 15, 15) or Color3.new(0, 0, 0)
+    t.BackgroundTransparency = (order == 1) and 0 or 1
+    t.Text = name t.TextColor3 = (order == 1) and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(130, 130, 140)
+    t.Font = Enum.Font.GothamBold t.TextSize = 11 t.ZIndex = 20
+    Instance.new("UICorner", t).CornerRadius = UDim.new(0, 6)
+
+    local stroke = Instance.new("UIStroke", t)
+    stroke.Color = (order == 1) and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(40, 40, 45)
+    tabs[order] = {btn = t, st = stroke}
+
+    t.MouseButton1Down:Connect(function()
+        for i, pg in pairs(pages) do
+            pg.Visible = (i == order)
+            tabs[i].btn.BackgroundColor3 = (i == order) and Color3.fromRGB(35, 15, 15) or Color3.new(0, 0, 0)
+            tabs[i].btn.BackgroundTransparency = (i == order) and 0 or 1
+            tabs[i].btn.TextColor3 = (i == order) and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(130, 130, 140)
+            tabs[i].st.Color = (i == order) and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(40, 40, 45)
+        end
+    end)
+    return p
+end
+
+local pSeeds = createPage("Seeds Shop", 1)
+local pCrates = createPage("Crates Shop", 2)
+local pGear = createPage("Gear Shop", 3)
+local pVis = createPage("Visuals ESP", 4)
+local pTweaks = createPage("Player Tweaks", 5)
+local pFun = createPage("Server Fun", 6)
+
+local function fillList(p, list, infoText)
+    local SL = Instance.new("ScrollingFrame", p)
+    SL.Size = UDim2.new(1, 0, 1, -65) SL.Position = UDim2.new(0, 0, 0, 5)
+    SL.BackgroundColor3 = Color3.fromRGB(18, 18, 22) SL.BorderSizePixel = 0
+    SL.CanvasSize = UDim2.new(0, 0, 0, #list * 32) SL.ScrollBarThickness = 4
+    SL.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 30) SL.ZIndex = 15
+    Instance.new("UICorner", SL).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIListLayout", SL).SortOrder = Enum.SortOrder.LayoutOrder
+
+    for _, itemName in pairs(list) do
+        local row = Instance.new("Frame", SL)
+        row.Size = UDim2.new(1, -10, 0, 30) row.BackgroundTransparency = 1 row.ZIndex = 16
+
+        local lbl = Instance.new("TextLabel", row)
+        lbl.Size = UDim2.new(1, -50, 1, 0) lbl.Position = UDim2.new(0, 10, 0, 0)
+        lbl.BackgroundTransparency = 1 lbl.Text = itemName lbl.TextColor3 = Color3.fromRGB(230, 230, 235)
+        lbl.Font = Enum.Font.GothamMedium lbl.TextSize = 11 lbl.TextXAlignment = Enum.TextXAlignment.Left lbl.ZIndex = 17
+
+        local cb = Instance.new("TextButton", row)
+        cb.Size = UDim2.new(0, 44, 0, 22) cb.Position = UDim2.new(1, -60, 0.5, -11)
+        cb.BackgroundColor3 = Color3.fromRGB(45, 45, 50) cb.Text = "" cb.ZIndex = 50
+        Instance.new("UICorner", cb).CornerRadius = UDim.new(1, 0)
+
+        local dot = Instance.new("Frame", cb)
+        dot.Size = UDim2.new(0, 14, 0, 14) dot.Position = UDim2.new(0, 3, 0.5, -7)
+        dot.BackgroundColor3 = Color3.new(1, 1, 1) dot.ZIndex = 51
+        Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+        local active = false
+        cb.MouseButton1Down:Connect(function()
+            active = not active
+            cb.BackgroundColor3 = active and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(45, 45, 50)
+            dot:TweenPosition(UDim2.new(0, active and 27 or 3, 0.5, -7), 0, 0, 0.12)
+        end)
+    end
+
+    local Inp = Instance.new("TextBox", p)
+    Inp.Size = UDim2.new(0, 70, 0, 30) Inp.Position = UDim2.new(0, 0, 1, -32)
+    Inp.BackgroundColor3 = Color3.fromRGB(22, 22, 26) Inp.Text = "10" Inp.TextColor3 = Color3.new(1, 1, 1)
+    Inp.Font = Enum.Font.GothamMedium Inp.TextSize = 12 Inp.ZIndex = 25
+    Instance.new("UICorner", Inp).CornerRadius = UDim.new(0, 6)
+
+    local ActionBtn = Instance.new("TextButton", p)
+    ActionBtn.Size = UDim2.new(1, -80, 0, 30) ActionBtn.Position = UDim2.new(0, 80, 1, -32)
+    ActionBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) ActionBtn.Text = infoText
+    ActionBtn.TextColor3 = Color3.fromRGB(150, 150, 150) ActionBtn.Font = Enum.Font.GothamBold ActionBtn.TextSize = 10 ActionBtn.ZIndex = 25
+    Instance.new("UICorner", ActionBtn).CornerRadius = UDim.new(0, 6)
+end
+
+fillList(pSeeds, {"Carrot","Strawberry","Blueberry","Tulip","Tomato","Apple","Corn","Bamboo","Cactus","Baby Cactus","Pineapple","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Dragon Fruit","Acorn","Cherry","Sunflower","Briar Rose","Venus Fly Trap","Pomegranate","Poison Apple","Venom Spitter","Moon Bloom","Hypno Bloom","Dragon's Breath"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (SEEDS)")
+fillList(pCrates, {"Common Crate","Uncommon Crate","Rare Crate","Epic Crate","Legendary Crate","Exclusive Seed Pack"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (CRATES)")
+fillList(pGear, {"Basic Watering Can","Golden Watering Can","Diamond Watering Can","Basic Shovel","Titanium Shovel","Pro Harvester","Auto-Waterer Node"}, "ОЖИДАНИЕ ОБНОВЛЕНИЯ РОНИКСА/СОЛАРЫ (GEAR)")
+local function createToggleRow(page, title, yOffset, callback)
+    local card = Instance.new("Frame", page)
+    card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
+    card.BackgroundColor3 = Color3.fromRGB(22, 22, 26) card.ZIndex = 15
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel", card)
+    label.Size = UDim2.new(0, 230, 1, 0) label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1 label.Text = title label.TextColor3 = Color3.fromRGB(230, 230, 235)
+    label.Font = Enum.Font.GothamMedium label.TextSize = 11 label.TextXAlignment = Enum.TextXAlignment.Left label.ZIndex = 16
+
+    local btn = Instance.new("TextButton", card)
+    btn.Size = UDim2.new(0, 44, 0, 22) btn.Position = UDim2.new(1, -60, 0.5, -11)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) btn.Text = "" btn.ZIndex = 100
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+
+    local dot = Instance.new("Frame", btn)
+    dot.Size = UDim2.new(0, 14, 0, 14) dot.Position = UDim2.new(0, 3, 0.5, -7)
+    dot.BackgroundColor3 = Color3.new(1, 1, 1) dot.ZIndex = 101
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local isToggled = false
+    btn.MouseButton1Down:Connect(function()
+        isToggled = not isToggled
+        callback(isToggled)
+        btn.BackgroundColor3 = isToggled and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(45, 45, 50)
+        dot:TweenPosition(UDim2.new(0, isToggled and 27 or 3, 0.5, -7), 0, 0, 0.12)
+    end)
+end
+
+createToggleRow(pVis, "Self ESP (White Chams)", 5, toggleSelfESP)
+createToggleRow(pVis, "Player ESP (Red Chams)", 55, togglePlayerESP)
+createToggleRow(pTweaks, "Infinite Jump (Бесконечный прыжок)", 5, function(s) infJump = s end)
+createToggleRow(pTweaks, "Noclip (Хождение сквозь стены)", 55, function(s) noclip = s end)
+
+local function createSliderRow(page, title, yOffset, min, max, default, callback)
+    local card = Instance.new("Frame", page)
+    card.Size = UDim2.new(1, 0, 0, 45) card.Position = UDim2.new(0, 0, 0, yOffset)
+    card.BackgroundColor3 = Color3.fromRGB(22, 22, 26) card.ZIndex = 15
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel", card)
+    label.Size = UDim2.new(0, 180, 1, 0) label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1 label.Text = title .. ": " .. tostring(default)
+    label.TextColor3 = Color3.fromRGB(230, 230, 235) label.Font = Enum.Font.GothamMedium label.TextSize = 10
+    label.TextXAlignment = Enum.TextXAlignment.Left label.ZIndex = 16
+
+    local bar = Instance.new("TextButton", card)
+    bar.Size = UDim2.new(1, -240, 0, 6) bar.Position = UDim2.new(0, 200, 0.5, -3)
+    bar.BackgroundColor3 = Color3.fromRGB(45, 45, 50) bar.Text = "" bar.ZIndex = 16
+    Instance.new("UICorner", bar)
+
+    local fill = Instance.new("Frame", bar)
+    fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(255, 30, 30) fill.BorderSizePixel = 0 fill.ZIndex = 17
+    Instance.new("UICorner", fill)
+
+    local sliding = false
+    local function updateSlider()
+        local mouseX = math.clamp((localPlayer:GetMouse().X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        fill.Size = UDim2.new(mouseX, 0, 1, 0)
+        local value = math.floor(min + (mouseX * (max - min)))
+        label.Text = title .. ": " .. tostring(value)
+        callback(value)
+    end
+
+    bar.MouseButton1Down:Connect(function() sliding = true updateSlider() end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end end)
+    RunService.Heartbeat:Connect(function() if sliding then pcall(updateSlider) end end)
+end
+
+createSliderRow(pTweaks, "WalkSpeed (Скорость)", 105, 16, 250, 16, function(v)
+    if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v
+    end
+end)
+
+createSliderRow(pTweaks, "JumpPower (Прыжок)", 155, 50, 350, 50, function(v)
+    if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").JumpPower = v
+        localPlayer.Character:FindFirstChildOfClass("Humanoid").UseJumpPower = true
+    end
+end)
+
+local function createActionButton(page, title, yOffset, callback)
+    local btn = Instance.new("TextButton", page)
+    btn.Size = UDim2.new(1, 0, 0, 40) btn.Position = UDim2.new(0, 0, 0, yOffset)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 26) btn.Text = title btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold btn.TextSize = 11 btn.ZIndex = 15
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45, 45, 50)
+    btn.MouseButton1Down:Connect(callback)
+end
+
+createActionButton(pFun, "Rejoin (Быстрый перезаход на сервер)", 5, function()
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+end)
+
+createActionButton(pFun, "Server Hop (Прыгнуть на другой сервер)", 50, function()
+    local res = HttpService:JSONDecode(game:HttpGet("https://roblox.com" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+    for _, server in pairs(res.data) do
+        if server.playing < server.maxTokens and server.id ~= game.JobId then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, localPlayer)
+            break
+        end
+    end
+end)
+
+local Tgl = Instance.new("TextButton", Gui)
+Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15)
+Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30)
+Tgl.Font = Enum.Font.GothamBold Tgl.TextSize = 22 Tgl.ZIndex = 100
+
+local tSt = Instance.new("UIStroke", Tgl) tSt.Color = Color3.fromRGB(255, 30, 30) tSt.Thickness = 2
+Instance.new("UICorner", Tgl).CornerRadius = UDim.new(1, 0)
+
+Tgl.MouseButton1Down:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    Tgl.TextColor3 = MainFrame.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(120, 120, 120)
+    tSt.Color = MainFrame.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(50, 50, 50)
+end)
