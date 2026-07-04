@@ -57,8 +57,7 @@ local function togglePlayerESP(state)
             end
         end
     end
-end
--- ==========================================================
+end-- ==========================================================
 -- ЧАСТЬ 2: ХАКИ ДВИЖЕНИЯ И УЗКИЕ ПРЯМОУГОЛЬНЫЕ КНОПКИ В УГЛУ
 -- ==========================================================
 UserInputService.JumpRequest:Connect(function()
@@ -99,7 +98,7 @@ local Logo = Instance.new("TextLabel", SidePanel)
 Logo.Size = UDim2.new(1, 0, 0, 50) Logo.Position = UDim2.new(0, 0, 0, 15) Logo.BackgroundTransparency = 1
 Logo.Text = "Herdwavy's Hub" Logo.TextColor3 = Color3.new(1, 1, 1) Logo.Font = Enum.Font.GothamBold Logo.TextSize = 16 Logo.ZIndex = 11
 
--- Идеальные виндовс-прямоугольники (низкие и широкие) строго в верхний правый край рамки
+-- Твои идеальные виндовс-прямоугольники (низкие и широкие) строго в верхний правый край рамки
 local ControlBox = Instance.new("Frame", MainFrame)
 ControlBox.Size = UDim2.new(0, 150, 0, 20) 
 ControlBox.Position = UDim2.new(1, -165, 0, 4) 
