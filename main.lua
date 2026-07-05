@@ -8,49 +8,60 @@ local lP = P.LocalPlayer
 local mE, gE, aA, iJ, nc, flyE = false, false, false, false, false, false
 local fSpd = 50
 
-local function ch(t, n, f, tl)
+if C:FindFirstChild("HerdwavysHubGui") then C:FindFirstChild("HerdwavysHubGui"):Destroy() end
+local Gui = Instance.new("ScreenGui", C) Gui.Name = "HerdwavysHubGui"
+
+local Tgl = Instance.new("TextButton", Gui) Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15) Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30) Tgl.Font = Enum.Font.GothamBold Tgl.TextSize = 22 Tgl.ZIndex = 100 local tSt = Instance.new("UIStroke", Tgl) tSt.Color = Color3.fromRGB(255, 30, 30) tSt.Thickness = 2 Instance.new("UICorner", Tgl).CornerRadius = UDim.new(1, 0)
+
+local function ch(t, n, f)
     if t and not t:FindFirstChild(n) then
         local h = Instance.new("Highlight", t) h.Name = n
-        h.FillColor = f h.FillTransparency = tl h.OutlineColor = f h.DepthMode = 0
+        h.FillColor = f h.FillTransparency = 0.5 h.OutlineColor = f h.DepthMode = 0
     end
 end
--- ИДЕАЛЬНАЯ ПРОВЕРКА РОЛЕЙ (ИЩЕТ ОРУЖИЕ В РУКАХ И В РЮКЗАКЕ)
-local function gC(p)
-    local c = p.Character
-    if p.Backpack:FindFirstChild("Knife") or (c and c:FindFirstChild("Knife")) then 
-        return Color3.fromRGB(255, 0, 0) -- УБИЙЦА
-    elseif p.Backpack:FindFirstChild("Gun") or (c and c:FindFirstChild("Gun")) then 
-        return Color3.fromRGB(0, 0, 255) -- ШЕРИФ
-    end
-    return Color3.fromRGB(0, 255, 0) -- МИРНЫЙ
+local function getRoleColor(player)
+    if not player then return Color3.fromRGB(0, 255, 0) end
+    local b = player:FindFirstChild("Backpack") local char = player.Character
+    if (b and b:FindFirstChild("Knife")) or (char and char:FindFirstChild("Knife")) then return Color3.fromRGB(255, 0, 0)
+    elseif (b and b:FindFirstChild("Gun")) or (char and char:FindFirstChild("Gun")) then return Color3.fromRGB(0, 0, 255) end
+    return Color3.fromRGB(0, 255, 0)
 end
 
-R.Heartbeat:Connect(function()
-    if mE then
-        for _, p in pairs(P:GetPlayers()) do
-            if p ~= lP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local color = gC(p) pcall(ch, p.Character, "RoleHighlight", color, 0.5)
+task.spawn(function()
+    while task.wait(0.3) do
+        if mE then
+            for _, p in pairs(P:GetPlayers()) do
+                if p ~= lP and p.Character then
+                    local color = getRoleColor(p)
+                    local hl = p.Character:FindFirstChild("RoleHighlight")
+                    if not hl then
+                        hl = Instance.new("Highlight", p.Character) hl.Name = "RoleHighlight"
+                        hl.FillTransparency = 0.5 hl.OutlineTransparency = 0 hl.DepthMode = 0
+                    end
+                    hl.FillColor = color hl.OutlineColor = color
+                end
             end
-        end
-    else
-        for _, p in pairs(P:GetPlayers()) do if p.Character and p.Character:FindFirstChild("RoleHighlight") then p.Character.RoleHighlight:Destroy() end end
-    end
-    -- СТАРЫЙ РАБОЧИЙ ПОИСК ПИСТОЛЕТА ЧЕРЕЗ ВСЕ ОБЪЕКТЫ КАРТЫ
-    if gE then
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "GunDrop" and v:IsA("BasePart") then
-                pcall(ch, v, "GunESP", Color3.fromRGB(255, 215, 0), 0.2)
-            end
-        end
-    else
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "GunDrop" and v:FindFirstChild("GunESP") then v.GunESP:Destroy() end
+        else
+            for _, p in pairs(P:GetPlayers()) do if p.Character and p.Character:FindFirstChild("RoleHighlight") then p.Character.RoleHighlight:Destroy() end end
         end
     end
 end)
+-- ТОЧЕЧНЫЙ ФИКС РАДАРА НА ПИСТОЛЕТ ПО ПАПКЕ MAP БЕЗ ТЯЖЁЛЫХ НАГРУЗОК
+task.spawn(function()
+    while task.wait(0.5) do
+        local nObj = workspace:FindFirstChild("Normal", true) or workspace:FindFirstChild("GunDrop", true)
+        if gE and nObj then
+            local target = nObj:FindFirstChild("Gun") or nObj
+            ch(target, "GunHighlight", Color3.fromRGB(255, 215, 0))
+        elseif nObj then
+            local target = nObj:FindFirstChild("Gun") or nObj
+            if target:FindFirstChild("GunHighlight") then target.GunHighlight:Destroy() end
+        end
+    end
+end)
+
 U.JumpRequest:Connect(function() if iJ and lP.Character and lP.Character:FindFirstChildOfClass("Humanoid") then lP.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping") end end)
 R.Stepped:Connect(function() if nc and lP.Character then for _, v in pairs(lP.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end end)
-
 task.spawn(function()
     R.RenderStepped:Connect(function()
         if flyE and lP.Character and lP.Character:FindFirstChild("HumanoidRootPart") then
@@ -66,13 +77,11 @@ task.spawn(function()
         end
     end)
 end)
-if C:FindFirstChild("HerdwavysHubGui") then C:FindFirstChild("HerdwavysHubGui"):Destroy() end
-local Gui = Instance.new("ScreenGui", C) Gui.Name = "HerdwavysHubGui"
+
 local MF = Instance.new("Frame", Gui) MF.Size = UDim2.new(0, 640, 0, 420) MF.Position = UDim2.new(0.5, -310, 0.5, -210) MF.BackgroundColor3 = Color3.fromRGB(12, 12, 14) MF.Active = true MF.Draggable = true MF.ZIndex = 5
 local mC = Instance.new("UICorner", MF) mC.CornerRadius = UDim.new(0, 14) Instance.new("UIStroke", MF).Color = Color3.fromRGB(255, 30, 30)
 local SP = Instance.new("Frame", MF) SP.Size = UDim2.new(0, 170, 1, 0) SP.BackgroundColor3 = Color3.fromRGB(18, 18, 22) SP.ZIndex = 10 Instance.new("UICorner", SP).CornerRadius = UDim.new(0, 14)
 local LT = Instance.new("TextLabel", SP) LT.Size = UDim2.new(1, 0, 0, 50) LT.Position = UDim2.new(0, 0, 0, 15) LT.BackgroundTransparency = 1 LT.Text = "Herdwavy's Hub" LT.TextColor3 = Color3.new(1, 1, 1) LT.Font = Enum.Font.GothamBold LT.TextSize = 16 LT.ZIndex = 11
-
 local CBF = Instance.new("Frame", MF) CBF.Size = UDim2.new(0, 150, 0, 20) CBF.Position = UDim2.new(1, -165, 0, 4) CBF.BackgroundTransparency = 1 CBF.ZIndex = 30
 local function wB(t, x, cl, cb)
     local b = Instance.new("TextButton", CBF) b.Size = UDim2.new(0, 44, 0, 16) b.Position = UDim2.new(0, x, 0, 0) b.BackgroundColor3 = Color3.fromRGB(25, 25, 30) b.Text = t b.TextColor3 = cl b.Font = Enum.Font.GothamBold b.TextSize = 10 b.ZIndex = 31
@@ -81,6 +90,7 @@ end
 wB("—", 0, Color3.new(0.8, 0.8, 0.8), function() MF.Visible = false end)
 local isMax = false wB("🗖", 48, Color3.new(0.8, 0.8, 0.8), function() isMax = not isMax if isMax then MF.Size = UDim2.new(1, 0, 1, 0) MF.Position = UDim2.new(0, 0, 0, 0) mC.CornerRadius = UDim.new(0, 0) else MF.Size = UDim2.new(0, 640, 0, 420) MF.Position = UDim2.new(0.5, -310, 0.5, -210) mC.CornerRadius = UDim.new(0, 14) end end)
 wB("X", 96, Color3.new(1, 0.2, 0.2), function() Gui:Destroy() end)
+
 local pages, tabs = {}, {}
 local function cP(name, order)
     local p = Instance.new("Frame", MF) p.Size = UDim2.new(1, -195, 1, -40) p.Position = UDim2.new(0, 185, 0, 20) p.BackgroundTransparency = 1 p.ZIndex = 10 p.Visible = (order == 1) pages[order] = p
@@ -119,5 +129,4 @@ cA(pFun, "FPS Booster (Максимальная оптимизация)", 95, fu
 cA(pFun, "Invisible (Полная невидимость персонажа)", 140, function() pcall(function() local char = lP.Character if char then local hrp = char:FindFirstChild("HumanoidRootPart") if hrp then local clone = hrp:Clone() clone.Parent = char char.PrimaryPart = clone hrp:Destroy() end end end) end)
 
 pcall(function() lP.Idled:Connect(function() if aA then game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame) task.wait(1) game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame) end end) end)
-local Tgl = Instance.new("TextButton", Gui) Tgl.Size = UDim2.new(0, 45, 0, 45) Tgl.Position = UDim2.new(0, 15, 0, 15) Tgl.BackgroundColor3 = Color3.fromRGB(15, 15, 18) Tgl.Text = "H" Tgl.TextColor3 = Color3.fromRGB(255, 30, 30) Tgl.Font = Enum.Font.GothamBold Tgl.TextSize = 22 Tgl.ZIndex = 100 local tSt = Instance.new("UIStroke", Tgl) tSt.Color = Color3.fromRGB(255, 30, 30) tSt.Thickness = 2 Instance.new("UICorner", Tgl).CornerRadius = UDim.new(1, 0)
 Tgl.MouseButton1Down:Connect(function() MF.Visible = not MF.Visible Tgl.TextColor3 = MF.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(120, 120, 120) tSt.Color = MF.Visible and Color3.fromRGB(255, 30, 30) or Color3.fromRGB(50, 50, 50) end)
